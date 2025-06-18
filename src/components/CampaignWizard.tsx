@@ -236,7 +236,7 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
                 className="mt-2"
               />
               <div className="flex justify-between mt-1">
-                <p className="text-sm text-gray-500">Use {{tokens}} for personalization</p>
+                <p className="text-sm text-gray-500">Use tokens for personalization</p>
                 <p className="text-sm text-gray-500">{campaignData.subjectLine.length}/100</p>
               </div>
             </div>
@@ -255,7 +255,7 @@ I wanted to reach out because..."
                 className="mt-2 min-h-[200px]"
               />
               <div className="flex justify-between mt-1">
-                <p className="text-sm text-gray-500">Available tokens: {{firstName}}, {{company}}, {{title}}</p>
+                <p className="text-sm text-gray-500">Available tokens: firstName, company, title</p>
                 <p className="text-sm text-gray-500">{campaignData.emailBody.length} characters</p>
               </div>
             </div>
