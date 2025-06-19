@@ -12,6 +12,15 @@ export interface CampaignData {
   openRate: number;
   replyRate: number;
   bounceRate: number;
+  // Additional properties for the wizard steps
+  type?: string;
+  template?: string;
+  prospectDescription?: string;
+  subjectLine?: string;
+  emailBody?: string;
+  emailAccount?: string;
+  schedule?: string;
+  dailyLimit?: number;
 }
 
 export interface ProspectCriteria {
@@ -47,4 +56,10 @@ export interface SmartleadConnection {
   connected: boolean;
   accountEmail?: string;
   lastSync?: string;
+}
+
+export interface EstimatedResults {
+  min: number;
+  max: number;
+  time: number;
 }
