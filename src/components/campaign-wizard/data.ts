@@ -1,48 +1,58 @@
 
-import { Template, Step, SuggestionChips } from "./types";
-
-export const templates: Template[] = [
+export const steps = [
   {
-    id: "cold-intro",
-    name: "Cold Introduction",
-    description: "Professional introduction template",
-    usage: "Used 45 times, 16% avg response rate",
-    preview: "Hi {{firstName}}, I noticed {{company}} recently..."
+    title: "Define Prospects",
+    description: "Specify your ideal target audience criteria"
   },
   {
-    id: "product-launch",
-    name: "Product Launch",
-    description: "Announce new features or products",
-    usage: "Used 23 times, 22% avg response rate",
-    preview: "Hello {{firstName}}, We just launched something that could help {{company}}..."
+    title: "Enrich Leads", 
+    description: "Let us find and enrich your prospects"
   },
   {
-    id: "partnership",
-    name: "Partnership Proposal",
-    description: "Collaboration and partnership opportunities",
-    usage: "Used 18 times, 19% avg response rate",
-    preview: "Hi {{firstName}}, I believe there's a great synergy between {{company}} and..."
+    title: "Review Emails",
+    description: "Approve AI-generated personalized messages"
+  },
+  {
+    title: "Monitor Campaign",
+    description: "Track your campaign performance"
   }
 ];
 
-export const steps: Step[] = [
-  { title: "Campaign Basics", description: "Name and template selection" },
-  { title: "Message Configuration", description: "Create your outreach message" },
-  { title: "Audience Setup", description: "Define your ideal prospects" },
-  { title: "Sending Configuration", description: "Set delivery preferences" },
-  { title: "Review & Launch", description: "Final review and launch" }
+export const locationOptions = [
+  "United States",
+  "Canada", 
+  "United Kingdom",
+  "Germany",
+  "France",
+  "Australia",
+  "Remote/Worldwide"
 ];
 
-export const suggestionChips: SuggestionChips = {
-  roles: ["Founder", "CEO", "VP Sales", "Marketing Director", "CTO", "Head of Growth"],
-  industries: ["SaaS", "E-commerce", "FinTech", "HealthTech", "Manufacturing", "Consulting"],
-  locations: ["United States", "California", "New York", "Remote-first", "Europe", "Canada"],
-  companySizes: ["1-10 employees", "11-50", "51-200", "200-1000", "1000+ employees"]
-};
+export const industryOptions = [
+  "Software/SaaS",
+  "E-commerce",
+  "FinTech", 
+  "HealthTech",
+  "Marketing/Advertising",
+  "Real Estate",
+  "Manufacturing",
+  "Consulting",
+  "Education",
+  "Other"
+];
 
-export const examplePrompts = [
-  "Marketing directors at B2B SaaS companies in North America with 50-500 employees",
-  "Founders of early-stage startups in fintech, recently featured in TechCrunch",
-  "VP of Sales at manufacturing companies in the Midwest with $10M+ annual revenue",
-  "CTOs at remote-first tech companies that use AWS and have raised funding"
+export const seniorityOptions = [
+  "Founder/CEO",
+  "C-Level (CTO, CMO, etc.)",
+  "VP/Director",
+  "Manager",
+  "Individual Contributor"
+];
+
+export const companySizeOptions = [
+  "1-10 employees",
+  "11-50 employees", 
+  "51-200 employees",
+  "201-1000 employees",
+  "1000+ employees"
 ];

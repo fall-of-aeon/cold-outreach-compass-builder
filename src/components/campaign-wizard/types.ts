@@ -1,22 +1,36 @@
 
 export interface CampaignData {
   name: string;
-  type: string;
-  template: string;
-  subjectLine: string;
-  emailBody: string;
-  prospectDescription: string;
-  emailAccount: string;
-  schedule: string;
-  dailyLimit: number;
+  location: string;
+  industry: string;
+  seniority: string;
+  companySize: string;
+  apolloUrl?: string;
+  enrichmentStatus: 'pending' | 'in-progress' | 'completed';
+  qualifiedLeads: number;
+  emailsSent: number;
+  openRate: number;
+  replyRate: number;
+  bounceRate: number;
 }
 
-export interface Template {
+export interface ProspectCriteria {
+  location: string;
+  industry: string;
+  seniority: string;
+  companySize: string;
+}
+
+export interface EnrichedLead {
   id: string;
   name: string;
-  description: string;
-  usage: string;
-  preview: string;
+  title: string;
+  company: string;
+  email: string;
+  linkedinProfile?: string;
+  companyWebsite?: string;
+  generatedEmail: string;
+  score: number;
 }
 
 export interface Step {
@@ -29,15 +43,8 @@ export interface CampaignWizardProps {
   onComplete: () => void;
 }
 
-export interface SuggestionChips {
-  roles: string[];
-  industries: string[];
-  locations: string[];
-  companySizes: string[];
-}
-
-export interface EstimatedResults {
-  min: number;
-  max: number;
-  time: number;
+export interface SmartleadConnection {
+  connected: boolean;
+  accountEmail?: string;
+  lastSync?: string;
 }
