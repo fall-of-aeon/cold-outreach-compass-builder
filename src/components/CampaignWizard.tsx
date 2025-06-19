@@ -177,7 +177,7 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fade-in {
           from {
             opacity: 0;

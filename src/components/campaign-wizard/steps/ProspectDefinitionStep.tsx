@@ -152,7 +152,7 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fade-in {
           from {
             opacity: 0;

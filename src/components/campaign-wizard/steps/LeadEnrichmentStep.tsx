@@ -231,7 +231,7 @@ export const LeadEnrichmentStep = ({ campaignData, setCampaignData, onNext }: Le
         </Card>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes fade-in {
           from {
             opacity: 0;
