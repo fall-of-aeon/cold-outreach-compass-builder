@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,9 +10,11 @@ import { ProspectDefinitionStep } from "./campaign-wizard/steps/ProspectDefiniti
 import { LeadEnrichmentStep } from "./campaign-wizard/steps/LeadEnrichmentStep";
 import { EmailReviewStep } from "./campaign-wizard/steps/EmailReviewStep";
 import { CampaignMonitorStep } from "./campaign-wizard/steps/CampaignMonitorStep";
+import { sendToN8n } from "./campaign-wizard/n8nService";
 
 export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
     name: "",
     location: "",
@@ -28,7 +29,18 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
     bounceRate: 0
   });
 
-  const nextStep = () => {
+  const nextStep = async () => {
+    if (currentStep === 1) {
+      // Send data to n8n before proceeding to next step
+      setIsLoading(true);
+      const success = await sendToN8n(campaignData);
+      setIsLoading(false);
+      
+      if (!success) {
+        return; // Don't proceed if n8n request failed
+      }
+    }
+    
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
@@ -51,7 +63,11 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return campaignData.location && campaignData.industry && campaignData.seniority && campaignData.companySize;
+        return campaignData.location && 
+               campaignData.industry && 
+               campaignData.seniority && 
+               campaignData.companySize && 
+               campaignData.n8nWebhookUrl;
       case 2:
         return campaignData.enrichmentStatus === 'completed';
       default:
@@ -167,10 +183,10 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
             
             <Button 
               onClick={nextStep}
-              disabled={!canProceed()}
+              disabled={!canProceed() || isLoading}
               className="group bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
             >
-              Next
+              {isLoading ? "Sending..." : "Next"}
               <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
             </Button>
           </div>

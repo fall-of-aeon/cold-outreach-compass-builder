@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target, Zap } from "lucide-react";
+import { Sparkles, Target, Zap, Webhook } from "lucide-react";
 import { CampaignData } from "../types";
 import { locationOptions, industryOptions, seniorityOptions, companySizeOptions } from "../data";
 
@@ -100,8 +100,36 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
         ))}
       </div>
 
+      {/* N8N Webhook URL Input */}
+      <Card className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 border-green-200/50 hover:shadow-xl transition-all duration-500 animate-fade-in transform hover:-translate-y-1" style={{ animationDelay: '0.5s' }}>
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-4 mb-4">
+            <div className="relative">
+              <Webhook className="h-8 w-8 text-green-600 animate-pulse" />
+              <div className="absolute inset-0 bg-green-400/20 rounded-full blur-md animate-ping"></div>
+            </div>
+            <div>
+              <h3 className="font-bold text-green-900 text-lg">n8n Workflow Integration</h3>
+              <p className="text-green-700">Connect your n8n workflow to automate the prospect enrichment process</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-green-800">n8n Webhook URL</Label>
+            <Input
+              placeholder="https://your-n8n-instance.com/webhook/your-webhook-id"
+              value={campaignData.n8nWebhookUrl || ""}
+              onChange={(e) => setCampaignData({ 
+                ...campaignData, 
+                n8nWebhookUrl: e.target.value 
+              })}
+              className="bg-white/70 backdrop-blur-sm border-green-200 hover:border-green-300 focus:border-green-400 transition-all duration-300"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* AI Helper Card with enhanced animations */}
-      <Card className="bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 border-purple-200/50 hover:shadow-xl transition-all duration-500 animate-fade-in transform hover:-translate-y-1" style={{ animationDelay: '0.5s' }}>
+      <Card className="bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 border-purple-200/50 hover:shadow-xl transition-all duration-500 animate-fade-in transform hover:-translate-y-1" style={{ animationDelay: '0.6s' }}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -127,21 +155,21 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
       </Card>
 
       {/* Info Panel with smooth reveal */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200/50 animate-fade-in transform transition-all duration-500 hover:shadow-lg" style={{ animationDelay: '0.6s' }}>
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200/50 animate-fade-in transform transition-all duration-500 hover:shadow-lg" style={{ animationDelay: '0.7s' }}>
         <div className="flex items-start space-x-3">
           <Zap className="h-6 w-6 text-blue-600 mt-1 animate-pulse" />
           <div>
             <h4 className="font-semibold text-blue-900 mb-3 text-lg">What happens next:</h4>
             <div className="space-y-2 text-blue-800">
               {[
-                "We'll generate a search URL targeting your criteria",
-                "Prospects will be found using Apollo.io database", 
-                "Each lead will be enriched with LinkedIn and company data"
+                "We'll send your criteria to your n8n workflow",
+                "Your workflow will handle prospect finding and enrichment", 
+                "Qualified leads will be processed according to your n8n automation"
               ].map((item, index) => (
                 <div 
                   key={index}
                   className="flex items-center space-x-2 animate-fade-in"
-                  style={{ animationDelay: `${0.7 + index * 0.1}s` }}
+                  style={{ animationDelay: `${0.8 + index * 0.1}s` }}
                 >
                   <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                   <span className="text-sm">{item}</span>

@@ -1,4 +1,3 @@
-
 export interface CampaignData {
   name: string;
   location: string;
@@ -21,6 +20,7 @@ export interface CampaignData {
   emailAccount?: string;
   schedule?: string;
   dailyLimit?: number;
+  n8nWebhookUrl?: string;
 }
 
 export interface ProspectCriteria {
