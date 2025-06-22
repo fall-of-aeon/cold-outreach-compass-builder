@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target, Zap } from "lucide-react";
+import { Sparkles, Target, Zap, Users } from "lucide-react";
 import { CampaignData } from "../types";
 import { locationOptions, industryOptions, seniorityOptions, companySizeOptions } from "../data";
 
@@ -19,60 +19,70 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
   };
 
   return (
-    <div className="space-y-8">
-      {/* Hero Section with smooth animations */}
-      <div className="text-center mb-8 animate-fade-in">
-        <div className="relative inline-block">
-          <Target className="h-16 w-16 text-blue-600 mx-auto mb-6 animate-pulse" />
-          <div className="absolute inset-0 bg-blue-400/20 rounded-full blur-xl animate-ping"></div>
+    <div className="space-y-12">
+      {/* Hero Section */}
+      <div className="text-center">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-blue-500 to-purple-600 mb-8 shadow-2xl">
+          <Target className="h-10 w-10 text-white" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
-          Define Your Target Prospects
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
+          Define Your Ideal Prospects
         </h2>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-          Tell us about your ideal customers and we'll find them for you with precision
+        <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          Precision targeting powered by AI to find your perfect customers
         </p>
       </div>
 
-      {/* Form Grid with staggered animations */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Campaign Name */}
+      <div className="max-w-2xl mx-auto">
+        <Label htmlFor="campaignName" className="text-lg font-semibold text-slate-800 mb-4 block">
+          Campaign Name
+        </Label>
+        <Input
+          id="campaignName"
+          placeholder="Q1 2024 SaaS Outreach Campaign"
+          value={campaignData.name}
+          onChange={(e) => setCampaignData({ ...campaignData, name: e.target.value })}
+          className="h-14 text-lg border-2 border-slate-200 rounded-2xl px-6 focus:border-blue-500 transition-all duration-300"
+        />
+      </div>
+
+      {/* Targeting Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         {[
           { 
             label: "Location", 
             value: campaignData.location, 
             options: locationOptions,
             field: "location",
-            delay: "0.1s"
+            icon: "🌍"
           },
           { 
             label: "Industry", 
             value: campaignData.industry, 
             options: industryOptions,
             field: "industry",
-            delay: "0.2s"
+            icon: "🏢"
           },
           { 
             label: "Seniority Level", 
             value: campaignData.seniority, 
             options: seniorityOptions,
             field: "seniority",
-            delay: "0.3s"
+            icon: "👤"
           },
           { 
             label: "Company Size", 
             value: campaignData.companySize, 
             options: companySizeOptions,
             field: "companySize",
-            delay: "0.4s"
+            icon: "📊"
           }
-        ].map((item, index) => (
-          <div 
-            key={item.field}
-            className="group animate-fade-in" 
-            style={{ animationDelay: item.delay }}
-          >
-            <Label className="text-sm font-semibold text-gray-700 mb-3 block">
-              {item.label}
+        ].map((item) => (
+          <div key={item.field} className="group">
+            <Label className="text-lg font-semibold text-slate-800 mb-4 flex items-center space-x-3">
+              <span className="text-2xl">{item.icon}</span>
+              <span>{item.label}</span>
             </Label>
             <Select 
               value={item.value} 
@@ -81,15 +91,15 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
                 [item.field]: value 
               })}
             >
-              <SelectTrigger className="bg-white/70 backdrop-blur-sm border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]">
+              <SelectTrigger className="h-14 text-lg border-2 border-slate-200 rounded-2xl px-6 hover:border-blue-400 focus:border-blue-500 transition-all duration-300 group-hover:shadow-lg">
                 <SelectValue placeholder={`Select ${item.label.toLowerCase()}`} />
               </SelectTrigger>
-              <SelectContent className="bg-white/95 backdrop-blur-xl border-gray-200">
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-2 border-slate-200 rounded-2xl shadow-2xl">
                 {item.options.map((option) => (
                   <SelectItem 
                     key={option} 
                     value={option}
-                    className="hover:bg-blue-50 transition-colors duration-200"
+                    className="text-lg py-3 px-4 hover:bg-blue-50 rounded-xl mx-2 my-1 transition-all duration-200"
                   >
                     {option}
                   </SelectItem>
@@ -100,74 +110,74 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
         ))}
       </div>
 
-      {/* AI Helper Card with enhanced animations */}
-      <Card className="bg-gradient-to-r from-purple-50 via-blue-50 to-indigo-50 border-purple-200/50 hover:shadow-xl transition-all duration-500 animate-fade-in transform hover:-translate-y-1" style={{ animationDelay: '0.5s' }}>
-        <CardContent className="p-6">
+      {/* AI Helper Card */}
+      <Card className="max-w-4xl mx-auto border-0 bg-gradient-to-r from-purple-50 to-blue-50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+        <CardContent className="p-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <Sparkles className="h-8 w-8 text-purple-600 animate-pulse" />
-                <div className="absolute inset-0 bg-purple-400/20 rounded-full blur-md animate-ping"></div>
+            <div className="flex items-center space-x-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center shadow-xl">
+                <Sparkles className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-purple-900 text-lg">Need help defining your audience?</h3>
-                <p className="text-purple-700">Our AI can help you refine your targeting criteria</p>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">AI-Powered Targeting</h3>
+                <p className="text-lg text-slate-700">Let our AI help you refine your targeting criteria for maximum impact</p>
               </div>
             </div>
             <Button 
               variant="outline" 
               onClick={handleAIHelper} 
-              className="group border-purple-300 text-purple-700 hover:bg-purple-100 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg"
+              className="px-6 py-3 border-2 border-purple-200 text-purple-700 hover:bg-purple-50 rounded-2xl font-semibold transition-all duration-300 hover:scale-105"
             >
-              <Sparkles className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Use AI Helper
+              <Sparkles className="h-5 w-5 mr-2" />
+              Optimize Targeting
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Info Panel with smooth reveal */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200/50 animate-fade-in transform transition-all duration-500 hover:shadow-lg" style={{ animationDelay: '0.6s' }}>
-        <div className="flex items-start space-x-3">
-          <Zap className="h-6 w-6 text-blue-600 mt-1 animate-pulse" />
-          <div>
-            <h4 className="font-semibold text-blue-900 mb-3 text-lg">What happens next:</h4>
-            <div className="space-y-2 text-blue-800">
-              {[
-                "We'll process your targeting criteria through our AI system",
-                "Our backend will find and enrich qualified prospects automatically", 
-                "You'll receive notifications as leads are processed and qualified"
-              ].map((item, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center space-x-2 animate-fade-in"
-                  style={{ animationDelay: `${0.7 + index * 0.1}s` }}
-                >
-                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                  <span className="text-sm">{item}</span>
+      {/* Process Preview */}
+      <div className="max-w-4xl mx-auto">
+        <Card className="border-0 bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+          <CardContent className="relative p-10">
+            <div className="flex items-start space-x-4 mb-6">
+              <Zap className="h-8 w-8 text-blue-400 mt-1" />
+              <div>
+                <h4 className="text-2xl font-bold text-white mb-3">What happens next</h4>
+                <div className="space-y-4">
+                  {[
+                    "AI processes your targeting criteria with precision",
+                    "Qualified prospects are discovered and enriched automatically", 
+                    "Personalized outreach campaigns are created and launched"
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                      <span className="text-lg text-slate-300">{item}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-        </div>
+            
+            <div className="flex items-center space-x-8 pt-6 border-t border-slate-700">
+              <div className="flex items-center space-x-3">
+                <Users className="h-6 w-6 text-emerald-400" />
+                <div>
+                  <p className="text-sm text-slate-400">Expected Results</p>
+                  <p className="text-lg font-bold text-white">50-150 qualified leads</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Target className="h-6 w-6 text-purple-400" />
+                <div>
+                  <p className="text-sm text-slate-400">Processing Time</p>
+                  <p className="text-lg font-bold text-white">15-30 minutes</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-
-      <style>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };

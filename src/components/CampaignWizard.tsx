@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { CampaignData, CampaignWizardProps } from "./campaign-wizard/types";
 import { steps } from "./campaign-wizard/data";
@@ -91,103 +91,101 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6 overflow-hidden">
-      {/* Animated background elements */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      {/* Subtle background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/4 -right-48 w-96 h-96 bg-gradient-to-br from-blue-100/20 to-purple-100/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 -left-48 w-96 h-96 bg-gradient-to-br from-emerald-100/20 to-teal-100/20 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-10">
-        {/* Header with smooth slide-in animation */}
-        <div className="flex items-center justify-between mb-8 animate-fade-in">
-          <div className="flex items-center space-x-4">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center space-x-6">
             <Button 
               variant="ghost" 
               onClick={onClose}
-              className="hover:scale-110 transition-all duration-300 hover:bg-white/50 backdrop-blur-sm"
+              className="h-12 w-12 rounded-2xl hover:bg-slate-100 transition-all duration-300"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <div className="transform transition-all duration-700 ease-out">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
-                Create New Campaign
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                Create Campaign
               </h1>
-              <p className="text-gray-600 mt-1 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+              <p className="text-slate-600 mt-2 text-lg">
                 {steps[currentStep - 1].description}
               </p>
             </div>
           </div>
-          <div className="text-sm text-gray-500 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            Step {currentStep} of {steps.length}
+          <div className="flex items-center space-x-3 bg-slate-100/80 backdrop-blur-sm px-6 py-3 rounded-2xl">
+            <Sparkles className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium text-slate-700">
+              Step {currentStep} of {steps.length}
+            </span>
           </div>
         </div>
 
-        {/* Enhanced Progress Bar with smooth animations */}
-        <div className="mb-8 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-          <div className="relative">
+        {/* Progress Bar */}
+        <div className="mb-16">
+          <div className="relative mb-8">
             <Progress 
               value={(currentStep / steps.length) * 100} 
-              className="h-3 bg-white/50 backdrop-blur-sm border border-white/20 shadow-lg transition-all duration-700 ease-out" 
+              className="h-2 bg-slate-200/60 backdrop-blur-sm" 
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full opacity-20 animate-pulse"></div>
           </div>
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between">
             {steps.map((step, index) => (
               <div
                 key={index}
-                className={`text-xs transition-all duration-500 ease-out transform ${
+                className={`flex flex-col items-center transition-all duration-500 ${
                   index + 1 <= currentStep 
-                    ? "text-blue-600 font-semibold scale-110" 
-                    : "text-gray-400 hover:text-gray-600"
-                } ${index + 1 === currentStep ? "animate-pulse" : ""}`}
+                    ? "text-slate-900" 
+                    : "text-slate-400"
+                }`}
               >
-                <div className={`w-2 h-2 rounded-full mx-auto mb-2 transition-all duration-300 ${
+                <div className={`w-3 h-3 rounded-full mb-3 transition-all duration-300 ${
                   index + 1 <= currentStep 
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg" 
-                    : "bg-gray-300"
+                    ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg scale-110" 
+                    : "bg-slate-300"
                 }`}></div>
-                {step.title}
+                <span className="text-sm font-medium text-center max-w-24">
+                  {step.title}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Step Content with smooth transitions */}
-        <div className="relative">
-          <Card className="mb-8 border-0 shadow-2xl bg-white/80 backdrop-blur-xl transform transition-all duration-500 ease-out hover:shadow-3xl hover:-translate-y-1">
-            <CardContent className="p-8">
-              <div 
-                key={currentStep}
-                className="animate-fade-in"
-                style={{ animationDuration: '0.6s' }}
-              >
-                {renderStep()}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Step Content */}
+        <Card className="border-0 bg-white/60 backdrop-blur-sm shadow-xl mb-12">
+          <CardContent className="p-12">
+            <div className="animate-fade-in">
+              {renderStep()}
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Enhanced Navigation with smooth hover effects */}
+        {/* Navigation */}
         {currentStep < 4 && (
-          <div className="flex justify-between animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="flex justify-between items-center">
             <Button
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 1}
-              className="group bg-white/70 backdrop-blur-sm border-white/30 hover:bg-white/90 hover:scale-105 hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
+              className="px-8 py-3 rounded-2xl border-2 border-slate-200 bg-white/80 backdrop-blur-sm hover:bg-slate-50 transition-all duration-300 disabled:opacity-40"
             >
-              <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Previous
             </Button>
             
             <Button 
               onClick={nextStep}
               disabled={!canProceed() || isLoading}
-              className="group bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
+              className="px-8 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-40"
             >
-              {isLoading ? "Sending..." : "Next"}
-              <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+              {isLoading ? "Processing..." : "Continue"}
+              <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
         )}
@@ -206,11 +204,7 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
         }
         
         .animate-fade-in {
-          animation: fade-in 0.8s ease-out forwards;
-        }
-        
-        .hover\\:shadow-3xl:hover {
-          box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+          animation: fade-in 0.6s ease-out forwards;
         }
       `}</style>
     </div>
