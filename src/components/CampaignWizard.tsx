@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import { ProspectDefinitionStep } from "./campaign-wizard/steps/ProspectDefiniti
 import { LeadEnrichmentStep } from "./campaign-wizard/steps/LeadEnrichmentStep";
 import { EmailReviewStep } from "./campaign-wizard/steps/EmailReviewStep";
 import { CampaignMonitorStep } from "./campaign-wizard/steps/CampaignMonitorStep";
-import { sendToN8n } from "./campaign-wizard/n8nService";
+import { apiService } from "./campaign-wizard/apiService";
 
 export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -31,13 +32,13 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
 
   const nextStep = async () => {
     if (currentStep === 1) {
-      // Send data to n8n before proceeding to next step
+      // Send data to backend API before proceeding to next step
       setIsLoading(true);
-      const success = await sendToN8n(campaignData);
+      const success = await apiService.submitProspectCriteria(campaignData);
       setIsLoading(false);
       
       if (!success) {
-        return; // Don't proceed if n8n request failed
+        return; // Don't proceed if API request failed
       }
     }
     
@@ -66,8 +67,7 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
         return campaignData.location && 
                campaignData.industry && 
                campaignData.seniority && 
-               campaignData.companySize && 
-               campaignData.n8nWebhookUrl;
+               campaignData.companySize;
       case 2:
         return campaignData.enrichmentStatus === 'completed';
       default:
