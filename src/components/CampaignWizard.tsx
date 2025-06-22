@@ -1,9 +1,6 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { CampaignData, CampaignWizardProps } from "./campaign-wizard/types";
 import { steps } from "./campaign-wizard/data";
@@ -12,6 +9,9 @@ import { LeadEnrichmentStep } from "./campaign-wizard/steps/LeadEnrichmentStep";
 import { EmailReviewStep } from "./campaign-wizard/steps/EmailReviewStep";
 import { CampaignMonitorStep } from "./campaign-wizard/steps/CampaignMonitorStep";
 import { apiService } from "./campaign-wizard/apiService";
+import { WizardHeader } from "./campaign-wizard/WizardHeader";
+import { WizardProgressBar } from "./campaign-wizard/WizardProgressBar";
+import { WizardNavigation } from "./campaign-wizard/WizardNavigation";
 
 export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -100,63 +100,16 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-16">
-          <div className="flex items-center space-x-6">
-            <Button 
-              variant="ghost" 
-              onClick={onClose}
-              className="h-10 w-10 rounded-full hover:bg-slate-100 transition-colors duration-200"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-5xl font-light text-slate-900 tracking-tight">
-                Create Campaign
-              </h1>
-              <p className="text-slate-600 mt-3 text-lg font-light">
-                {steps[currentStep - 1].description}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3 bg-slate-50 border border-slate-200 px-4 py-2 rounded-full">
-            <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-            <span className="text-sm font-medium text-slate-700">
-              Step {currentStep} of {steps.length}
-            </span>
-          </div>
-        </div>
+        <WizardHeader 
+          currentStep={currentStep}
+          steps={steps}
+          onClose={onClose}
+        />
 
-        {/* Progress Bar */}
-        <div className="mb-20">
-          <div className="relative mb-12">
-            <Progress 
-              value={(currentStep / steps.length) * 100} 
-              className="h-1 bg-slate-100" 
-            />
-          </div>
-          <div className="flex justify-between">
-            {steps.map((step, index) => (
-              <div
-                key={index}
-                className={`flex flex-col items-center transition-all duration-300 ${
-                  index + 1 <= currentStep 
-                    ? "text-slate-900" 
-                    : "text-slate-400"
-                }`}
-              >
-                <div className={`w-2 h-2 rounded-full mb-4 transition-all duration-300 ${
-                  index + 1 <= currentStep 
-                    ? "bg-slate-900" 
-                    : "bg-slate-300"
-                }`}></div>
-                <span className="text-sm font-medium text-center max-w-24">
-                  {step.title}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <WizardProgressBar 
+          currentStep={currentStep}
+          steps={steps}
+        />
 
         {/* Step Content */}
         <Card className="border border-slate-200 bg-white shadow-sm mb-16">
@@ -167,29 +120,13 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
           </CardContent>
         </Card>
 
-        {/* Navigation */}
-        {currentStep < 4 && (
-          <div className="flex justify-between items-center">
-            <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className="px-6 py-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors duration-200 disabled:opacity-40"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Previous
-            </Button>
-            
-            <Button 
-              onClick={nextStep}
-              disabled={!canProceed() || isLoading}
-              className="px-6 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-40"
-            >
-              {isLoading ? "Processing..." : "Continue"}
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-        )}
+        <WizardNavigation 
+          currentStep={currentStep}
+          canProceed={canProceed()}
+          isLoading={isLoading}
+          onPrevStep={prevStep}
+          onNextStep={nextStep}
+        />
       </div>
     </div>
   );
