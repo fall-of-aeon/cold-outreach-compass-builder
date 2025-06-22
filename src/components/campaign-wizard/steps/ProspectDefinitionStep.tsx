@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target, Zap, Users } from "lucide-react";
+import { Sparkles, Target, Users } from "lucide-react";
 import { CampaignData } from "../types";
 import { locationOptions, industryOptions, seniorityOptions, companySizeOptions } from "../data";
 
@@ -19,23 +19,23 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-16">
       {/* Hero Section */}
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-blue-500 to-purple-600 mb-8 shadow-2xl">
-          <Target className="h-10 w-10 text-white" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 border border-slate-200 mb-8">
+          <Target className="h-8 w-8 text-slate-700" />
         </div>
-        <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
+        <h2 className="text-4xl font-light text-slate-900 mb-4 tracking-tight">
           Define Your Ideal Prospects
         </h2>
-        <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          Precision targeting powered by AI to find your perfect customers
+        <p className="text-xl text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
+          Precision targeting to find your perfect customers
         </p>
       </div>
 
       {/* Campaign Name */}
       <div className="max-w-2xl mx-auto">
-        <Label htmlFor="campaignName" className="text-lg font-semibold text-slate-800 mb-4 block">
+        <Label htmlFor="campaignName" className="text-base font-medium text-slate-800 mb-4 block">
           Campaign Name
         </Label>
         <Input
@@ -43,7 +43,7 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
           placeholder="Q1 2024 SaaS Outreach Campaign"
           value={campaignData.name}
           onChange={(e) => setCampaignData({ ...campaignData, name: e.target.value })}
-          className="h-14 text-lg border-2 border-slate-200 rounded-2xl px-6 focus:border-blue-500 transition-all duration-300"
+          className="h-12 text-base border border-slate-200 rounded-lg px-4 focus:border-slate-400 transition-colors duration-200"
         />
       </div>
 
@@ -79,9 +79,9 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
             icon: "📊"
           }
         ].map((item) => (
-          <div key={item.field} className="group">
-            <Label className="text-lg font-semibold text-slate-800 mb-4 flex items-center space-x-3">
-              <span className="text-2xl">{item.icon}</span>
+          <div key={item.field}>
+            <Label className="text-base font-medium text-slate-800 mb-4 flex items-center space-x-3">
+              <span className="text-xl">{item.icon}</span>
               <span>{item.label}</span>
             </Label>
             <Select 
@@ -91,15 +91,15 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
                 [item.field]: value 
               })}
             >
-              <SelectTrigger className="h-14 text-lg border-2 border-slate-200 rounded-2xl px-6 hover:border-blue-400 focus:border-blue-500 transition-all duration-300 group-hover:shadow-lg">
+              <SelectTrigger className="h-12 text-base border border-slate-200 rounded-lg px-4 hover:border-slate-400 focus:border-slate-400 transition-colors duration-200">
                 <SelectValue placeholder={`Select ${item.label.toLowerCase()}`} />
               </SelectTrigger>
-              <SelectContent className="bg-white/95 backdrop-blur-xl border-2 border-slate-200 rounded-2xl shadow-2xl">
+              <SelectContent className="bg-white border border-slate-200 rounded-lg shadow-lg">
                 {item.options.map((option) => (
                   <SelectItem 
                     key={option} 
                     value={option}
-                    className="text-lg py-3 px-4 hover:bg-blue-50 rounded-xl mx-2 my-1 transition-all duration-200"
+                    className="text-base py-2 px-3 hover:bg-slate-50 rounded-md mx-1 my-0.5 transition-colors duration-150"
                   >
                     {option}
                   </SelectItem>
@@ -111,25 +111,25 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
       </div>
 
       {/* AI Helper Card */}
-      <Card className="max-w-4xl mx-auto border-0 bg-gradient-to-r from-purple-50 to-blue-50 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+      <Card className="max-w-4xl mx-auto border border-slate-200 bg-slate-50 shadow-sm hover:shadow-md transition-shadow duration-200">
         <CardContent className="p-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center shadow-xl">
-                <Sparkles className="h-8 w-8 text-white" />
+              <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-slate-700" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-2">AI-Powered Targeting</h3>
-                <p className="text-lg text-slate-700">Let our AI help you refine your targeting criteria for maximum impact</p>
+                <h3 className="text-xl font-medium text-slate-900 mb-2">AI-Powered Targeting</h3>
+                <p className="text-base text-slate-700 font-light">Let our AI help you refine your targeting criteria for maximum impact</p>
               </div>
             </div>
             <Button 
               variant="outline" 
               onClick={handleAIHelper} 
-              className="px-6 py-3 border-2 border-purple-200 text-purple-700 hover:bg-purple-50 rounded-2xl font-semibold transition-all duration-300 hover:scale-105"
+              className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-white rounded-full font-medium transition-colors duration-200"
             >
-              <Sparkles className="h-5 w-5 mr-2" />
-              Optimize Targeting
+              <Sparkles className="h-4 w-4 mr-2" />
+              Optimize
             </Button>
           </div>
         </CardContent>
@@ -137,13 +137,14 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
 
       {/* Process Preview */}
       <div className="max-w-4xl mx-auto">
-        <Card className="border-0 bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-2xl overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
-          <CardContent className="relative p-10">
-            <div className="flex items-start space-x-4 mb-6">
-              <Zap className="h-8 w-8 text-blue-400 mt-1" />
+        <Card className="border border-slate-200 bg-slate-900 text-white shadow-sm">
+          <CardContent className="p-10">
+            <div className="flex items-start space-x-4 mb-8">
+              <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mt-1">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+              </div>
               <div>
-                <h4 className="text-2xl font-bold text-white mb-3">What happens next</h4>
+                <h4 className="text-xl font-medium text-white mb-4">What happens next</h4>
                 <div className="space-y-4">
                   {[
                     "AI processes your targeting criteria with precision",
@@ -151,27 +152,27 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
                     "Personalized outreach campaigns are created and launched"
                   ].map((item, index) => (
                     <div key={index} className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                      <span className="text-lg text-slate-300">{item}</span>
+                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
+                      <span className="text-base text-slate-300 font-light">{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-8 pt-6 border-t border-slate-700">
+            <div className="flex items-center space-x-12 pt-8 border-t border-slate-800">
               <div className="flex items-center space-x-3">
-                <Users className="h-6 w-6 text-emerald-400" />
+                <Users className="h-5 w-5 text-emerald-400" />
                 <div>
-                  <p className="text-sm text-slate-400">Expected Results</p>
-                  <p className="text-lg font-bold text-white">50-150 qualified leads</p>
+                  <p className="text-xs text-slate-400 mb-1">Expected Results</p>
+                  <p className="text-base font-medium text-white">50-150 qualified leads</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <Target className="h-6 w-6 text-purple-400" />
+                <Target className="h-5 w-5 text-blue-400" />
                 <div>
-                  <p className="text-sm text-slate-400">Processing Time</p>
-                  <p className="text-lg font-bold text-white">15-30 minutes</p>
+                  <p className="text-xs text-slate-400 mb-1">Processing Time</p>
+                  <p className="text-base font-medium text-white">15-30 minutes</p>
                 </div>
               </div>
             </div>
