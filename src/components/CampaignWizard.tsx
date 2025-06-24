@@ -61,13 +61,13 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
     onComplete();
   };
 
-  const canProceed = () => {
+  const canProceed = (): boolean => {
     switch (currentStep) {
       case 1:
-        return campaignData.location && 
-               campaignData.industry && 
-               campaignData.seniority && 
-               campaignData.companySize;
+        return Boolean(campaignData.location) && 
+               Boolean(campaignData.industry) && 
+               Boolean(campaignData.seniority) && 
+               Boolean(campaignData.companySize);
       case 2:
         return campaignData.enrichmentStatus === 'completed';
       default:
@@ -91,15 +91,15 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
   };
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Sophisticated background pattern */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 relative overflow-hidden">
+      {/* Subtle geometric background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] bg-[size:64px_64px]"></div>
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-gradient-to-bl from-blue-50/30 via-transparent to-transparent"></div>
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f8fafc_1px,transparent_1px),linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:60px_60px] opacity-40"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-100/20 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-tl from-indigo-100/20 to-transparent rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-12">
+      <div className="relative z-10 max-w-4xl mx-auto px-8 py-12">
         <WizardHeader 
           currentStep={currentStep}
           steps={steps}
@@ -112,7 +112,7 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
         />
 
         {/* Step Content */}
-        <Card className="border border-slate-200 bg-white shadow-sm mb-16">
+        <Card className="border-0 bg-white/70 backdrop-blur-sm shadow-xl shadow-slate-200/20 mb-12">
           <CardContent className="p-12">
             <div>
               {renderStep()}
