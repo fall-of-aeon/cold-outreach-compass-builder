@@ -1,10 +1,10 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Mail, TrendingUp, Users, BarChart3 } from "lucide-react";
-import type { DashboardStats } from "@/services/supabaseService";
+import type { DashboardStats as DashboardStatsType } from "@/services/supabaseService";
 
 interface DashboardStatsProps {
-  stats?: DashboardStats;
+  stats?: DashboardStatsType;
 }
 
 export const DashboardStats = ({ stats }: DashboardStatsProps) => {
