@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -52,7 +51,7 @@ export class SupabaseService {
       throw new Error(`Failed to fetch dashboard stats: ${error.message}`);
     }
     
-    return data as DashboardStats;
+    return data as unknown as DashboardStats;
   }
 
   // Get all campaigns
