@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -9,10 +8,11 @@ import { useState } from "react";
 interface LeadEnrichmentStepProps {
   campaignData: CampaignData;
   setCampaignData: (data: CampaignData) => void;
+  campaignId?: string | null;
   onNext: () => void;
 }
 
-export const LeadEnrichmentStep = ({ campaignData, setCampaignData, onNext }: LeadEnrichmentStepProps) => {
+export const LeadEnrichmentStep = ({ campaignData, setCampaignData, campaignId, onNext }: LeadEnrichmentStepProps) => {
   const [enrichmentStarted, setEnrichmentStarted] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -67,7 +67,8 @@ export const LeadEnrichmentStep = ({ campaignData, setCampaignData, onNext }: Le
             Ready to Find & Enrich Your Prospects
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            We'll find high-quality leads and gather detailed information about them
+            {campaignId ? `Campaign ${campaignId.slice(0, 8)}... created successfully!` : "Campaign ready for processing"} 
+            <br />We'll find high-quality leads and gather detailed information about them
           </p>
         </div>
 
@@ -97,6 +98,12 @@ export const LeadEnrichmentStep = ({ campaignData, setCampaignData, onNext }: Le
                 </div>
               ))}
             </div>
+            {campaignData.prospectDescription && (
+              <div className="mt-4 pt-4 border-t border-green-200">
+                <span className="font-semibold text-green-800">Additional Description:</span>
+                <span className="ml-2 text-green-700">{campaignData.prospectDescription}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 

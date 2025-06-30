@@ -1,9 +1,12 @@
+
 export interface CampaignData {
   name: string;
   location: string;
   industry: string;
   seniority: string;
   companySize: string;
+  prospectDescription?: string;
+  n8nWebhookUrl?: string;
   apolloUrl?: string;
   enrichmentStatus: 'pending' | 'in-progress' | 'completed';
   qualifiedLeads: number;
@@ -14,7 +17,6 @@ export interface CampaignData {
   // Additional properties for the wizard steps
   type?: string;
   template?: string;
-  prospectDescription?: string;
   subjectLine?: string;
   emailBody?: string;
   emailAccount?: string;

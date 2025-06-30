@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target, Users } from "lucide-react";
+import { Sparkles, Target, Users, Webhook } from "lucide-react";
 import { CampaignData } from "../types";
 import { locationOptions, industryOptions, seniorityOptions, companySizeOptions } from "../data";
 
@@ -36,7 +36,7 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
       {/* Campaign Name */}
       <div className="max-w-2xl mx-auto">
         <Label htmlFor="campaignName" className="text-base font-medium text-slate-800 mb-4 block">
-          Campaign Name
+          Campaign Name *
         </Label>
         <Input
           id="campaignName"
@@ -45,6 +45,25 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
           onChange={(e) => setCampaignData({ ...campaignData, name: e.target.value })}
           className="h-12 text-base border border-slate-200 rounded-lg px-4 focus:border-slate-400 transition-colors duration-200"
         />
+      </div>
+
+      {/* n8n Webhook URL */}
+      <div className="max-w-2xl mx-auto">
+        <Label htmlFor="n8nWebhookUrl" className="text-base font-medium text-slate-800 mb-4 block flex items-center space-x-2">
+          <Webhook className="h-5 w-5 text-slate-600" />
+          <span>n8n Webhook URL *</span>
+        </Label>
+        <Input
+          id="n8nWebhookUrl"
+          type="url"
+          placeholder="https://your-n8n-instance.com/webhook/campaign-trigger"
+          value={campaignData.n8nWebhookUrl || ""}
+          onChange={(e) => setCampaignData({ ...campaignData, n8nWebhookUrl: e.target.value })}
+          className="h-12 text-base border border-slate-200 rounded-lg px-4 focus:border-slate-400 transition-colors duration-200"
+        />
+        <p className="text-sm text-slate-500 mt-2">
+          This URL will be securely stored and used to trigger your n8n workflow
+        </p>
       </div>
 
       {/* Targeting Grid */}
@@ -82,7 +101,7 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
           <div key={item.field}>
             <Label className="text-base font-medium text-slate-800 mb-4 flex items-center space-x-3">
               <span className="text-xl">{item.icon}</span>
-              <span>{item.label}</span>
+              <span>{item.label} *</span>
             </Label>
             <Select 
               value={item.value} 
@@ -108,6 +127,20 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
             </Select>
           </div>
         ))}
+      </div>
+
+      {/* Prospect Description */}
+      <div className="max-w-2xl mx-auto">
+        <Label htmlFor="prospectDescription" className="text-base font-medium text-slate-800 mb-4 block">
+          Additional Prospect Description (Optional)
+        </Label>
+        <Input
+          id="prospectDescription"
+          placeholder="e.g., Recently raised Series A, Uses specific technology stack..."
+          value={campaignData.prospectDescription || ""}
+          onChange={(e) => setCampaignData({ ...campaignData, prospectDescription: e.target.value })}
+          className="h-12 text-base border border-slate-200 rounded-lg px-4 focus:border-slate-400 transition-colors duration-200"
+        />
       </div>
 
       {/* AI Helper Card */}
@@ -147,6 +180,8 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
                 <h4 className="text-xl font-medium text-white mb-4">What happens next</h4>
                 <div className="space-y-4">
                   {[
+                    "Campaign is securely created in Supabase database",
+                    "n8n workflow is triggered via secure edge function", 
                     "AI processes your targeting criteria with precision",
                     "Qualified prospects are discovered and enriched automatically", 
                     "Personalized outreach campaigns are created and launched"
