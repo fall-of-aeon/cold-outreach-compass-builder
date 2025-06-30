@@ -7,11 +7,11 @@ import { Plus, Play, Pause, BarChart3, Users, Mail, TrendingUp, Loader2 } from "
 import { CampaignWizard } from "@/components/CampaignWizard";
 import { CampaignMonitor } from "@/components/CampaignMonitor";
 import { useDashboardStats, useCampaigns } from "@/hooks/useSupabase";
-import type { Campaign } from "@/services/supabaseService";
+import { SupabaseService, type LegacyCampaign } from "@/services/supabaseService";
 
 const Dashboard = () => {
   const [showWizard, setShowWizard] = useState(false);
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<LegacyCampaign | null>(null);
 
   // Real data from Supabase
   const { 
@@ -194,7 +194,7 @@ const Dashboard = () => {
                   <div 
                     key={campaign.id}
                     className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                    onClick={() => setSelectedCampaign(campaign)}
+                    onClick={() => setSelectedCampaign(SupabaseService.convertToLegacyCampaign(campaign))}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-3">

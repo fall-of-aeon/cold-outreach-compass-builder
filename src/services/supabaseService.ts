@@ -19,6 +19,18 @@ export interface DashboardStats {
   lastUpdated: string;
 }
 
+// Legacy Campaign interface for CampaignMonitor compatibility
+export interface LegacyCampaign {
+  id: number;
+  name: string;
+  status: string;
+  sent: number;
+  total: number;
+  responses: number;
+  openRate: number;
+  created: string;
+}
+
 export class SupabaseService {
   // Test connection
   static async testConnection(): Promise<boolean> {
@@ -141,5 +153,19 @@ export class SupabaseService {
     }
 
     return data;
+  }
+
+  // Convert Supabase Campaign to Legacy Campaign for CampaignMonitor
+  static convertToLegacyCampaign(campaign: Campaign): LegacyCampaign {
+    return {
+      id: parseInt(campaign.id.slice(-8), 16), // Convert UUID to number for legacy compatibility
+      name: campaign.name,
+      status: campaign.status,
+      sent: campaign.emails_sent || 0,
+      total: campaign.total_leads_found || 0,
+      responses: campaign.emails_replied || 0,
+      openRate: Number(campaign.open_rate) || 0,
+      created: campaign.created_at || new Date().toISOString()
+    };
   }
 }
