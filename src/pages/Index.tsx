@@ -1,56 +1,77 @@
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Play, Pause, BarChart3, Users, Mail, TrendingUp, Loader2 } from "lucide-react";
 import { CampaignWizard } from "@/components/CampaignWizard";
 import { CampaignMonitor } from "@/components/CampaignMonitor";
-import { HeroSection } from "@/components/dashboard/HeroSection";
-import { StatsGrid } from "@/components/dashboard/StatsGrid";
-import { CampaignsSection } from "@/components/dashboard/CampaignsSection";
-import { PerformanceInsights } from "@/components/dashboard/PerformanceInsights";
+import { useDashboardStats, useCampaigns } from "@/hooks/useSupabase";
+import type { Campaign } from "@/services/supabaseService";
 
 const Dashboard = () => {
   const [showWizard, setShowWizard] = useState(false);
-  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
 
-  // Mock data for demonstration
-  const stats = {
-    totalSent: 2847,
-    responseRate: 12.4,
-    activeCampaigns: 3,
-    openRate: 34.2
+  // Real data from Supabase
+  const { 
+    data: stats, 
+    isLoading: statsLoading, 
+    error: statsError 
+  } = useDashboardStats();
+
+  const { 
+    data: campaigns, 
+    isLoading: campaignsLoading, 
+    error: campaignsError 
+  } = useCampaigns();
+
+  // Loading state
+  if (statsLoading || campaignsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (statsError || campaignsError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">
+            Error loading dashboard: {statsError?.message || campaignsError?.message}
+          </p>
+          <Button onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "processing": return "bg-blue-500";
+      case "completed": return "bg-green-500";
+      case "paused": return "bg-yellow-500";
+      case "failed": return "bg-red-500";
+      default: return "bg-gray-500";
+    }
   };
 
-  const campaigns = [
-    {
-      id: 1,
-      name: "Q1 SaaS Prospects",
-      status: "active",
-      sent: 487,
-      total: 1250,
-      responses: 18,
-      openRate: 28.3,
-      created: "2024-03-15"
-    },
-    {
-      id: 2,
-      name: "Developer Outreach 2024",
-      status: "completed",
-      sent: 850,
-      total: 850,
-      responses: 42,
-      openRate: 31.7,
-      created: "2024-03-10"
-    },
-    {
-      id: 3,
-      name: "Spring Product Launch",
-      status: "paused",
-      sent: 156,
-      total: 600,
-      responses: 8,
-      openRate: 25.1,
-      created: "2024-03-18"
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "processing": return <Play className="h-4 w-4" />;
+      case "completed": return <BarChart3 className="h-4 w-4" />;
+      case "paused": return <Pause className="h-4 w-4" />;
+      default: return null;
     }
-  ];
+  };
 
   if (showWizard) {
     return (
@@ -58,7 +79,7 @@ const Dashboard = () => {
         onClose={() => setShowWizard(false)}
         onComplete={() => {
           setShowWizard(false);
-          // Refresh dashboard data
+          // Data will auto-refresh via React Query
         }}
       />
     );
@@ -74,22 +95,149 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
-      {/* Subtle background elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 -right-32 w-96 h-96 rounded-full bg-gradient-to-l from-blue-50/30 to-transparent blur-3xl"></div>
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-r from-gray-50/50 to-transparent blur-3xl"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f8fafc_1px,transparent_1px),linear-gradient(to_bottom,#f8fafc_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-40"></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+      <div className="max-w-7xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Cold Outreach Dashboard</h1>
+            <p className="text-gray-600">Manage your outreach campaigns and track performance</p>
+            <p className="text-sm text-green-600 mt-1">✅ Connected to Supabase</p>
+          </div>
+          <Button 
+            onClick={() => setShowWizard(true)}
+            size="lg"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Create New Campaign
+          </Button>
+        </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
-        <HeroSection onCreateCampaign={() => setShowWizard(true)} />
-        <StatsGrid stats={stats} />
-        <CampaignsSection 
-          campaigns={campaigns} 
-          onCampaignSelect={setSelectedCampaign} 
-        />
-        <PerformanceInsights stats={stats} />
+        {/* Real stats from Supabase */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="hover:shadow-lg transition-shadow border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Sent</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stats?.totalEmailsSent?.toLocaleString() || 0}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Mail className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Response Rate</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stats?.avgReplyRate?.toFixed(1) || 0}%
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Active Campaigns</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stats?.activeCampaigns || 0}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Users className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Open Rate</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {stats?.avgOpenRate?.toFixed(1) || 0}%
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="h-6 w-6 text-orange-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Real campaigns from Supabase */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-xl">Recent Campaigns</CardTitle>
+            <CardDescription>Track performance and manage your outreach campaigns</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {campaigns && campaigns.length > 0 ? (
+                campaigns.map((campaign) => (
+                  <div 
+                    key={campaign.id}
+                    className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                    onClick={() => setSelectedCampaign(campaign)}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className={`h-3 w-3 rounded-full ${getStatusColor(campaign.status)}`} />
+                        <h3 className="font-semibold text-lg">{campaign.name}</h3>
+                        <Badge variant="outline" className="capitalize">
+                          {getStatusIcon(campaign.status)}
+                          <span className="ml-1">{campaign.status}</span>
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Created {new Date(campaign.created_at || '').toLocaleDateString()}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                      <div>
+                        <p className="text-sm text-gray-600">Qualified Leads</p>
+                        <p className="font-medium text-green-600">{campaign.qualified_leads || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Emails Sent</p>
+                        <p className="font-medium">{campaign.emails_sent || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Open Rate</p>
+                        <p className="font-medium">{Number(campaign.open_rate)?.toFixed(1) || 0}%</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Reply Rate</p>
+                        <p className="font-medium">{Number(campaign.reply_rate)?.toFixed(1) || 0}%</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No campaigns found. Create your first campaign to get started!</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
