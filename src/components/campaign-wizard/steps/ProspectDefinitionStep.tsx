@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, Target, Users, Webhook } from "lucide-react";
+import { Sparkles, Target, Users } from "lucide-react";
 import { CampaignData } from "../types";
 import { locationOptions, industryOptions, seniorityOptions, companySizeOptions } from "../data";
 
@@ -45,25 +45,6 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
           onChange={(e) => setCampaignData({ ...campaignData, name: e.target.value })}
           className="h-12 text-base border border-slate-200 rounded-lg px-4 focus:border-slate-400 transition-colors duration-200"
         />
-      </div>
-
-      {/* n8n Webhook URL */}
-      <div className="max-w-2xl mx-auto">
-        <Label htmlFor="n8nWebhookUrl" className="text-base font-medium text-slate-800 mb-4 block flex items-center space-x-2">
-          <Webhook className="h-5 w-5 text-slate-600" />
-          <span>n8n Webhook URL *</span>
-        </Label>
-        <Input
-          id="n8nWebhookUrl"
-          type="url"
-          placeholder="https://your-n8n-instance.com/webhook/campaign-trigger"
-          value={campaignData.n8nWebhookUrl || ""}
-          onChange={(e) => setCampaignData({ ...campaignData, n8nWebhookUrl: e.target.value })}
-          className="h-12 text-base border border-slate-200 rounded-lg px-4 focus:border-slate-400 transition-colors duration-200"
-        />
-        <p className="text-sm text-slate-500 mt-2">
-          This URL will be securely stored and used to trigger your n8n workflow
-        </p>
       </div>
 
       {/* Targeting Grid */}

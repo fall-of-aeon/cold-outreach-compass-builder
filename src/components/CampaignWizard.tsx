@@ -25,7 +25,6 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
     seniority: "",
     companySize: "",
     prospectDescription: "",
-    n8nWebhookUrl: "",
     enrichmentStatus: 'pending',
     qualifiedLeads: 0,
     emailsSent: 0,
@@ -38,12 +37,12 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
 
   const nextStep = async () => {
     if (currentStep === 1) {
-      // Validate required fields
+      // Validate required fields (no longer need webhook URL)
       if (!campaignData.name || !campaignData.location || !campaignData.industry || 
-          !campaignData.seniority || !campaignData.companySize || !campaignData.n8nWebhookUrl) {
+          !campaignData.seniority || !campaignData.companySize) {
         toast({
           title: "Missing Information",
-          description: "Please fill in all required fields including n8n webhook URL.",
+          description: "Please fill in all required fields.",
           variant: "destructive"
         });
         return;
@@ -52,15 +51,14 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
       setIsLoading(true);
       
       try {
-        // 1. Create campaign in Supabase
+        // 1. Create campaign in Supabase (without n8n_webhook_url)
         const campaign = await createCampaignMutation.mutateAsync({
           name: campaignData.name,
           location: campaignData.location,
           industry: campaignData.industry,
           seniority: campaignData.seniority,
           company_size: campaignData.companySize,
-          prospect_description: campaignData.prospectDescription,
-          n8n_webhook_url: campaignData.n8nWebhookUrl
+          prospect_description: campaignData.prospectDescription
         });
 
         setCreatedCampaignId(campaign.id);
@@ -71,7 +69,7 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
         if (!n8nSuccess) {
           toast({
             title: "n8n Integration Warning",
-            description: "Campaign created but n8n workflow may not have started. Check your webhook URL.",
+            description: "Campaign created but n8n workflow may not have started. Check environment configuration.",
             variant: "destructive"
           });
         } else {
@@ -120,7 +118,6 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
                Boolean(campaignData.industry) && 
                Boolean(campaignData.seniority) && 
                Boolean(campaignData.companySize) &&
-               Boolean(campaignData.n8nWebhookUrl) &&
                Boolean(campaignData.name);
       case 2:
         return createdCampaignId !== null;

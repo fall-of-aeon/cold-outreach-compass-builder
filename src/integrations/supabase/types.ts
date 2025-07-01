@@ -20,7 +20,6 @@ export type Database = {
           id: string
           industry: string | null
           location: string | null
-          n8n_webhook_url: string | null
           name: string
           open_rate: number | null
           prospect_description: string | null
@@ -46,7 +45,6 @@ export type Database = {
           id?: string
           industry?: string | null
           location?: string | null
-          n8n_webhook_url?: string | null
           name: string
           open_rate?: number | null
           prospect_description?: string | null
@@ -72,7 +70,6 @@ export type Database = {
           id?: string
           industry?: string | null
           location?: string | null
-          n8n_webhook_url?: string | null
           name?: string
           open_rate?: number | null
           prospect_description?: string | null

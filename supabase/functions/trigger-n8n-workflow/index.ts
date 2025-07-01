@@ -34,18 +34,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Triggering n8n workflow for campaign:", campaignId);
 
-    // Get campaign with n8n webhook URL from database
-    const { data: campaign, error: campaignError } = await supabase
-      .from('campaigns')
-      .select('n8n_webhook_url')
-      .eq('id', campaignId)
-      .single();
-
-    if (campaignError || !campaign?.n8n_webhook_url) {
-      console.error("Campaign not found or missing webhook URL:", campaignError);
+    // Get webhook URL from environment variable (not from campaign data)
+    const n8nWebhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
+    
+    if (!n8nWebhookUrl) {
+      console.error("N8N_WEBHOOK_URL not configured in environment");
       return new Response(
-        JSON.stringify({ error: "Campaign not found or missing webhook URL" }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ error: "N8N_WEBHOOK_URL not configured in environment" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
@@ -53,15 +49,23 @@ const handler = async (req: Request): Promise<Response> => {
     const n8nPayload = {
       timestamp: new Date().toISOString(),
       campaignId: campaignId,
-      campaignData: campaignData,
+      campaignData: {
+        id: campaignId,
+        name: campaignData.name,
+        location: campaignData.location,
+        industry: campaignData.industry,
+        seniority: campaignData.seniority,
+        companySize: campaignData.companySize,
+        prospectDescription: campaignData.prospectDescription || ""
+      },
       source: "lovable-campaign-wizard-secure",
       version: "2.0"
     };
 
-    console.log("Sending payload to n8n:", campaign.n8n_webhook_url);
+    console.log("Sending payload to n8n:", n8nWebhookUrl);
 
     // Trigger n8n webhook
-    const n8nResponse = await fetch(campaign.n8n_webhook_url, {
+    const n8nResponse = await fetch(n8nWebhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -69,13 +73,17 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify(n8nPayload),
     });
 
+    if (!n8nResponse.ok) {
+      throw new Error(`n8n webhook failed: ${n8nResponse.status}`);
+    }
+
     // Log workflow event
     await supabase.rpc('log_workflow_event', {
       p_campaign_id: campaignId,
       p_event_type: 'workflow_triggered',
       p_step_name: 'n8n_webhook',
       p_message: `n8n workflow triggered via webhook`,
-      p_data: { webhook_url: campaign.n8n_webhook_url, response_status: n8nResponse.status }
+      p_data: { webhook_url: n8nWebhookUrl, response_status: n8nResponse.status }
     });
 
     // Update campaign status

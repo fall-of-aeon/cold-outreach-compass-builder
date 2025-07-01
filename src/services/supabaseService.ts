@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -85,7 +86,7 @@ export class SupabaseService {
     return data;
   }
 
-  // Create campaign
+  // Create campaign (without n8n_webhook_url)
   static async createCampaign(campaignData: {
     name: string;
     location?: string;
@@ -93,7 +94,6 @@ export class SupabaseService {
     seniority?: string;
     company_size?: string;
     prospect_description?: string;
-    n8n_webhook_url?: string;
   }): Promise<Campaign> {
     const { data, error } = await supabase
       .from('campaigns')

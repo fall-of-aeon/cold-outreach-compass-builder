@@ -1,4 +1,3 @@
-
 export interface CampaignData {
   name: string;
   location: string;
@@ -6,8 +5,6 @@ export interface CampaignData {
   seniority: string;
   companySize: string;
   prospectDescription?: string;
-  n8nWebhookUrl?: string;
-  apolloUrl?: string;
   enrichmentStatus: 'pending' | 'in-progress' | 'completed';
   qualifiedLeads: number;
   emailsSent: number;
