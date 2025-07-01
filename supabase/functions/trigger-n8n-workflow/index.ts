@@ -62,7 +62,8 @@ const handler = async (req: Request): Promise<Response> => {
       version: "2.0"
     };
 
-    console.log("Sending payload to n8n:", n8nWebhookUrl);
+    // 🔒 SECURITY FIX: Never log the webhook URL
+    console.log("Sending payload to n8n webhook (URL hidden for security)");
 
     // Trigger n8n webhook
     const n8nResponse = await fetch(n8nWebhookUrl, {
@@ -74,8 +75,12 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (!n8nResponse.ok) {
+      // 🔒 SECURITY FIX: Don't expose webhook URL in error messages
+      console.error(`n8n webhook failed with status: ${n8nResponse.status}`);
       throw new Error(`n8n webhook failed: ${n8nResponse.status}`);
     }
+
+    console.log(`n8n webhook successful: ${n8nResponse.status}`);
 
     // Log workflow event
     await supabase.rpc('log_workflow_event', {
@@ -83,7 +88,7 @@ const handler = async (req: Request): Promise<Response> => {
       p_event_type: 'workflow_triggered',
       p_step_name: 'n8n_webhook',
       p_message: `n8n workflow triggered via webhook`,
-      p_data: { webhook_url: n8nWebhookUrl, response_status: n8nResponse.status }
+      p_data: { response_status: n8nResponse.status }
     });
 
     // Update campaign status
@@ -109,7 +114,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
   } catch (error: any) {
-    console.error("Error in trigger-n8n-workflow:", error);
+    console.error("Error in trigger-n8n-workflow:", error.message);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
