@@ -1,4 +1,5 @@
 
+import { Globe, Building2, User, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,33 +56,33 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
             value: campaignData.location, 
             options: locationOptions,
             field: "location",
-            icon: "🌍"
+            icon: Globe
           },
           { 
             label: "Industry", 
             value: campaignData.industry, 
             options: industryOptions,
             field: "industry",
-            icon: "🏢"
+            icon: Building2
           },
           { 
             label: "Seniority Level", 
             value: campaignData.seniority, 
             options: seniorityOptions,
             field: "seniority",
-            icon: "👤"
+            icon: User
           },
           { 
             label: "Company Size", 
             value: campaignData.companySize, 
             options: companySizeOptions,
             field: "companySize",
-            icon: "📊"
+            icon: BarChart3
           }
         ].map((item) => (
           <div key={item.field}>
             <Label className="text-base font-medium text-slate-800 mb-4 flex items-center space-x-3">
-              <span className="text-xl">{item.icon}</span>
+              <item.icon className="h-5 w-5 text-primary" />
               <span>{item.label} *</span>
             </Label>
             <Select 

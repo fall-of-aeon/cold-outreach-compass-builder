@@ -1,12 +1,12 @@
 
 import { useState } from "react";
+import { BarChart3, Lightbulb, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Lightbulb, Upload } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { CampaignData, EstimatedResults } from "../types";
 import { suggestionChips, examplePrompts } from "../data";
@@ -52,8 +52,9 @@ export const AudienceSetupStep = ({ campaignData, setCampaignData }: AudienceSet
           maxLength={500}
         />
         <div className="flex justify-between mt-1">
-          <p className="text-sm text-blue-600">
-            💡 Tip: Be specific about role, location, company size, and industry for better targeting
+          <p className="text-sm text-blue-600 flex items-center space-x-2">
+            <Lightbulb className="h-4 w-4" />
+            <span>Tip: Be specific about role, location, company size, and industry for better targeting</span>
           </p>
           <p className="text-sm text-gray-500">{campaignData.prospectDescription.length}/500</p>
         </div>
@@ -97,8 +98,9 @@ export const AudienceSetupStep = ({ campaignData, setCampaignData }: AudienceSet
           </div>
           
           {prospectQuality < 3 && (
-            <p className="text-sm text-orange-600">
-              💡 Tip: Add more specific criteria like industry, location, or company size for better results
+            <p className="text-sm text-orange-600 flex items-center space-x-2">
+              <Lightbulb className="h-4 w-4" />
+              <span>Tip: Add more specific criteria like industry, location, or company size for better results</span>
             </p>
           )}
         </CardContent>
@@ -107,7 +109,10 @@ export const AudienceSetupStep = ({ campaignData, setCampaignData }: AudienceSet
       {/* Expected Results */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
-          <h3 className="font-medium mb-3">📊 Estimated Results</h3>
+          <h3 className="font-medium mb-3 flex items-center space-x-2">
+            <BarChart3 className="h-4 w-4" />
+            <span>Estimated Results</span>
+          </h3>
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm">Expected prospects:</span>
@@ -136,7 +141,10 @@ export const AudienceSetupStep = ({ campaignData, setCampaignData }: AudienceSet
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-2 mt-2">
-          <p className="text-sm font-medium">💡 Example targeting descriptions:</p>
+          <p className="text-sm font-medium flex items-center space-x-2">
+            <Lightbulb className="h-4 w-4" />
+            <span>Example targeting descriptions:</span>
+          </p>
           {examplePrompts.map((prompt, index) => (
             <div key={index} className="p-3 bg-gray-50 rounded-lg">
               <p className="text-sm italic">"{prompt}"</p>
@@ -194,8 +202,9 @@ export const AudienceSetupStep = ({ campaignData, setCampaignData }: AudienceSet
           <p className="text-sm text-gray-600 mb-4">
             Upload your CSV file instead of using AI generation
           </p>
-          <Button variant="outline">
-            📤 Upload CSV Instead
+          <Button variant="outline" className="flex items-center space-x-2">
+            <Upload className="h-4 w-4" />
+            <span>Upload CSV Instead</span>
           </Button>
           <p className="text-xs text-gray-500 mt-2">
             Requires: Name, Email, Company, Title columns • Max 1,000 contacts

@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, AlertTriangle, Check } from "lucide-react";
 import { CampaignData } from "../types";
 
 interface SendingConfigurationStepProps {
@@ -21,8 +21,14 @@ export const SendingConfigurationStep = ({ campaignData, setCampaignData }: Send
             <SelectValue placeholder="Select email account" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="primary">john@company.com (✅ Good standing)</SelectItem>
-            <SelectItem value="secondary">sales@company.com (⚠️ New domain)</SelectItem>
+            <SelectItem value="primary" className="flex items-center space-x-2">
+              <Check className="h-4 w-4 text-green-500" />
+              <span>john@company.com (Good standing)</span>
+            </SelectItem>
+            <SelectItem value="secondary" className="flex items-center space-x-2">
+              <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              <span>sales@company.com (New domain)</span>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -64,9 +70,18 @@ export const SendingConfigurationStep = ({ campaignData, setCampaignData }: Send
             <span className="font-medium">Delivery Optimization</span>
           </div>
           <div className="space-y-1 text-sm">
-            <p>✅ Optimal sending times selected</p>
-            <p>✅ Spam compliance configured</p>
-            <p>✅ Rate limiting enabled</p>
+            <p className="flex items-center space-x-2">
+              <Check className="h-4 w-4 text-green-500" />
+              <span>Optimal sending times selected</span>
+            </p>
+            <p className="flex items-center space-x-2">
+              <Check className="h-4 w-4 text-green-500" />
+              <span>Spam compliance configured</span>
+            </p>
+            <p className="flex items-center space-x-2">
+              <Check className="h-4 w-4 text-green-500" />
+              <span>Rate limiting enabled</span>
+            </p>
           </div>
         </CardContent>
       </Card>
