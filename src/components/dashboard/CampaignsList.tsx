@@ -12,11 +12,11 @@ interface CampaignsListProps {
 export const CampaignsList = ({ campaigns, onCampaignSelect }: CampaignsListProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "processing": return "bg-blue-500 dark:bg-blue-600";
-      case "completed": return "bg-green-500 dark:bg-green-600";
-      case "paused": return "bg-yellow-500 dark:bg-yellow-600";
-      case "failed": return "bg-red-500 dark:bg-red-600";
-      default: return "bg-gray-500 dark:bg-gray-600";
+      case "processing": return "bg-primary";
+      case "completed": return "bg-primary";
+      case "paused": return "bg-muted-foreground";
+      case "failed": return "bg-destructive";
+      default: return "bg-muted-foreground";
     }
   };
 
@@ -30,27 +30,27 @@ export const CampaignsList = ({ campaigns, onCampaignSelect }: CampaignsListProp
   };
 
   return (
-    <Card className="border-0 shadow-lg bg-card">
-      <CardHeader>
-        <CardTitle className="text-xl">Recent Campaigns</CardTitle>
-        <CardDescription>
+    <Card className="border border-border bg-card">
+      <CardHeader className="border-b border-border">
+        <CardTitle className="text-xl text-foreground">Recent Campaigns</CardTitle>
+        <CardDescription className="text-muted-foreground">
           Automated lead research, scoring, and personalized email generation
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="p-0">
+        <div className="divide-y divide-border">
           {campaigns && campaigns.length > 0 ? (
             campaigns.map((campaign) => (
               <div 
                 key={campaign.id}
-                className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                className="p-6 hover:bg-accent/50 cursor-pointer transition-all duration-200"
                 onClick={() => onCampaignSelect(campaign)}
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
                     <div className={`h-3 w-3 rounded-full ${getStatusColor(campaign.status)}`} />
-                    <h3 className="font-semibold text-lg">{campaign.name}</h3>
-                    <Badge variant="outline" className="capitalize">
+                    <h3 className="font-semibold text-lg text-foreground">{campaign.name}</h3>
+                    <Badge variant="outline" className="capitalize border-border">
                       {getStatusIcon(campaign.status)}
                       <span className="ml-1">{campaign.status}</span>
                     </Badge>
@@ -60,30 +60,30 @@ export const CampaignsList = ({ campaigns, onCampaignSelect }: CampaignsListProp
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Qualified Leads</p>
-                    <p className="font-medium text-green-600 dark:text-green-400">
+                    <p className="font-medium text-primary">
                       {campaign.qualified_leads || 0}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Emails Sent</p>
-                    <p className="font-medium">{campaign.emails_sent || 0}</p>
+                    <p className="font-medium text-foreground">{campaign.emails_sent || 0}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Open Rate</p>
-                    <p className="font-medium">{Number(campaign.open_rate)?.toFixed(1) || 0}%</p>
+                    <p className="font-medium text-foreground">{Number(campaign.open_rate)?.toFixed(1) || 0}%</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Reply Rate</p>
-                    <p className="font-medium">{Number(campaign.reply_rate)?.toFixed(1) || 0}%</p>
+                    <p className="font-medium text-foreground">{Number(campaign.reply_rate)?.toFixed(1) || 0}%</p>
                   </div>
                 </div>
               </div>
             ))
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-12 text-muted-foreground">
               <p>No campaigns found. Create your first automated outreach campaign to get started!</p>
             </div>
           )}
