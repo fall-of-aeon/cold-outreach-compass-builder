@@ -25,12 +25,12 @@ export const WizardNavigation = ({
   const isLastStep = currentStep >= steps.length;
 
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
       <Button
         variant="outline"
         onClick={onPrevStep}
         disabled={currentStep === 1}
-        className="px-6 py-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors duration-200 disabled:opacity-40"
+        className="order-2 sm:order-1 px-6 py-3 rounded-md border transition-colors duration-200 disabled:opacity-50"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
         Previous
@@ -39,7 +39,7 @@ export const WizardNavigation = ({
       {isLastStep && onComplete ? (
         <Button
           onClick={onComplete}
-          className="px-6 py-3 rounded-full bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white shadow-sm hover:shadow-md transition-all duration-200"
+          className="order-1 sm:order-2 px-6 py-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-all duration-200"
         >
           Complete Campaign
         </Button>
@@ -47,11 +47,11 @@ export const WizardNavigation = ({
         <Button 
           onClick={onNextStep}
           disabled={!canProceed || isLoading}
-          className="px-6 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-40"
+          className="order-1 sm:order-2 px-6 py-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-all duration-200 disabled:opacity-50"
         >
           {isLoading ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
               {currentStep === 1 ? 'Creating Campaign...' : 'Processing...'}
             </>
           ) : (

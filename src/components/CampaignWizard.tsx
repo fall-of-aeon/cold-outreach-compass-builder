@@ -64,10 +64,10 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-background to-purple-50/20 dark:from-blue-950/20 dark:via-background dark:to-purple-950/10"></div>
+    <div className="min-h-screen bg-background">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10 pointer-events-none"></div>
       
-      <div className="relative z-10 max-w-4xl mx-auto px-6 py-8">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-5xl">
         <WizardHeader 
           currentStep={currentStep}
           steps={steps}
@@ -81,8 +81,8 @@ export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => 
         />
 
         {/* Step Content */}
-        <Card className="border-0 bg-card/50 backdrop-blur-sm shadow-lg mb-8">
-          <CardContent className="p-8">
+        <Card className="border bg-card/50 backdrop-blur-sm shadow-sm mb-8 animate-fade-in">
+          <CardContent className="p-6 sm:p-8">
             <StepRenderer
               currentStep={currentStep}
               campaignData={campaignData}
