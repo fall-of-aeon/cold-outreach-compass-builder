@@ -20,23 +20,23 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
   };
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-12">
       {/* Hero Section */}
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 border border-slate-200 mb-8">
-          <Target className="h-8 w-8 text-slate-700" />
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 mb-6">
+          <Target className="h-6 w-6 text-primary" />
         </div>
-        <h2 className="text-4xl font-light text-slate-900 mb-4 tracking-tight">
+        <h2 className="text-3xl font-semibold text-foreground mb-3 tracking-tight">
           Define Your Ideal Prospects
         </h2>
-        <p className="text-xl text-slate-600 max-w-2xl mx-auto font-light leading-relaxed">
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Precision targeting to find your perfect customers
         </p>
       </div>
 
       {/* Campaign Name */}
       <div className="max-w-2xl mx-auto">
-        <Label htmlFor="campaignName" className="text-base font-medium text-slate-800 mb-4 block">
+        <Label htmlFor="campaignName" className="text-sm font-medium text-foreground mb-3 block">
           Campaign Name *
         </Label>
         <Input
@@ -44,12 +44,12 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
           placeholder="Q1 2024 SaaS Outreach Campaign"
           value={campaignData.name}
           onChange={(e) => setCampaignData({ ...campaignData, name: e.target.value })}
-          className="h-12 text-base border border-slate-200 rounded-lg px-4 focus:border-slate-400 transition-colors duration-200"
+          className="h-11"
         />
       </div>
 
       {/* Targeting Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {[
           { 
             label: "Location", 
@@ -81,8 +81,8 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
           }
         ].map((item) => (
           <div key={item.field}>
-            <Label className="text-base font-medium text-slate-800 mb-4 flex items-center space-x-3">
-              <item.icon className="h-5 w-5 text-primary" />
+            <Label className="text-sm font-medium text-foreground mb-3 flex items-center space-x-2">
+              <item.icon className="h-4 w-4 text-primary" />
               <span>{item.label} *</span>
             </Label>
             <Select 
@@ -92,15 +92,14 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
                 [item.field]: value 
               })}
             >
-              <SelectTrigger className="h-12 text-base border border-slate-200 rounded-lg px-4 hover:border-slate-400 focus:border-slate-400 transition-colors duration-200">
+              <SelectTrigger className="h-11">
                 <SelectValue placeholder={`Select ${item.label.toLowerCase()}`} />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-slate-200 rounded-lg shadow-lg">
+              <SelectContent>
                 {item.options.map((option) => (
                   <SelectItem 
                     key={option} 
                     value={option}
-                    className="text-base py-2 px-3 hover:bg-slate-50 rounded-md mx-1 my-0.5 transition-colors duration-150"
                   >
                     {option}
                   </SelectItem>
@@ -113,7 +112,7 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
 
       {/* Prospect Description */}
       <div className="max-w-2xl mx-auto">
-        <Label htmlFor="prospectDescription" className="text-base font-medium text-slate-800 mb-4 block">
+        <Label htmlFor="prospectDescription" className="text-sm font-medium text-foreground mb-3 block">
           Additional Prospect Description (Optional)
         </Label>
         <Input
@@ -121,27 +120,27 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
           placeholder="e.g., Recently raised Series A, Uses specific technology stack..."
           value={campaignData.prospectDescription || ""}
           onChange={(e) => setCampaignData({ ...campaignData, prospectDescription: e.target.value })}
-          className="h-12 text-base border border-slate-200 rounded-lg px-4 focus:border-slate-400 transition-colors duration-200"
+          className="h-11"
         />
       </div>
 
       {/* AI Helper Card */}
-      <Card className="max-w-4xl mx-auto border border-slate-200 bg-slate-50 shadow-sm hover:shadow-md transition-shadow duration-200">
-        <CardContent className="p-8">
+      <Card className="max-w-4xl mx-auto border bg-muted/50">
+        <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <div className="w-12 h-12 rounded-full bg-white border border-slate-200 flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-slate-700" />
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-medium text-slate-900 mb-2">AI-Powered Targeting</h3>
-                <p className="text-base text-slate-700 font-light">Let our AI help you refine your targeting criteria for maximum impact</p>
+                <h3 className="text-lg font-medium text-foreground mb-1">AI-Powered Targeting</h3>
+                <p className="text-sm text-muted-foreground">Let our AI help you refine your targeting criteria for maximum impact</p>
               </div>
             </div>
             <Button 
               variant="outline" 
               onClick={handleAIHelper} 
-              className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-white rounded-full font-medium transition-colors duration-200"
+              className="px-4 py-2"
             >
               <Sparkles className="h-4 w-4 mr-2" />
               Optimize
@@ -152,15 +151,15 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
 
       {/* Process Preview */}
       <div className="max-w-4xl mx-auto">
-        <Card className="border border-slate-200 bg-slate-900 text-white shadow-sm">
-          <CardContent className="p-10">
-            <div className="flex items-start space-x-4 mb-8">
-              <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mt-1">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+        <Card className="border bg-card">
+          <CardContent className="p-8">
+            <div className="flex items-start space-x-4 mb-6">
+              <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center mt-1">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
               </div>
               <div>
-                <h4 className="text-xl font-medium text-white mb-4">What happens next</h4>
-                <div className="space-y-4">
+                <h4 className="text-lg font-medium text-foreground mb-4">What happens next</h4>
+                <div className="space-y-3">
                   {[
                     "Campaign is securely created in Supabase database",
                     "n8n workflow is triggered via secure edge function", 
@@ -169,27 +168,27 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
                     "Personalized outreach campaigns are created and launched"
                   ].map((item, index) => (
                     <div key={index} className="flex items-center space-x-3">
-                      <div className="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
-                      <span className="text-base text-slate-300 font-light">{item}</span>
+                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
+                      <span className="text-sm text-muted-foreground">{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-12 pt-8 border-t border-slate-800">
+            <div className="flex items-center space-x-8 pt-6 border-t">
               <div className="flex items-center space-x-3">
-                <Users className="h-5 w-5 text-emerald-400" />
+                <Users className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-xs text-slate-400 mb-1">Expected Results</p>
-                  <p className="text-base font-medium text-white">50-150 qualified leads</p>
+                  <p className="text-xs text-muted-foreground mb-1">Expected Results</p>
+                  <p className="text-sm font-medium text-foreground">50-150 qualified leads</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <Target className="h-5 w-5 text-blue-400" />
+                <Target className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-xs text-slate-400 mb-1">Processing Time</p>
-                  <p className="text-base font-medium text-white">15-30 minutes</p>
+                  <p className="text-xs text-muted-foreground mb-1">Processing Time</p>
+                  <p className="text-sm font-medium text-foreground">15-30 minutes</p>
                 </div>
               </div>
             </div>
