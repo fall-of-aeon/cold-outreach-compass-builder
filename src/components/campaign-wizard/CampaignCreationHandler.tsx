@@ -44,16 +44,20 @@ export const useCampaignCreation = () => {
         prospect_description: campaignData.prospectDescription
       });
 
+      console.log("✅ Campaign created in Supabase:", campaign.id);
+
       // 2. Trigger n8n workflow securely via edge function
-      const n8nSuccess = await triggerN8nWorkflow(campaign.id, campaignData);
+      const n8nResult = await triggerN8nWorkflow(campaign.id, campaignData);
       
-      if (!n8nSuccess) {
+      if (!n8nResult.success) {
+        console.error("❌ n8n workflow trigger failed:", n8nResult.error);
         toast({
-          title: "n8n Integration Warning",
-          description: "Campaign created but n8n workflow may not have started. Check environment configuration.",
+          title: "n8n Integration Failed",
+          description: `Campaign created but workflow failed to start: ${n8nResult.error}`,
           variant: "destructive"
         });
       } else {
+        console.log("✅ n8n workflow triggered successfully");
         toast({
           title: "Campaign Created Successfully!",
           description: "n8n workflow has been triggered. Lead processing will begin shortly.",
@@ -65,7 +69,7 @@ export const useCampaignCreation = () => {
 
     } catch (error) {
       setIsLoading(false);
-      console.error('Campaign creation failed:', error);
+      console.error('❌ Campaign creation failed:', error);
       toast({
         title: "Error",
         description: "Failed to create campaign. Please try again.",
@@ -76,9 +80,9 @@ export const useCampaignCreation = () => {
   };
 
   // Secure n8n workflow trigger function
-  const triggerN8nWorkflow = async (campaignId: string, data: CampaignData): Promise<boolean> => {
+  const triggerN8nWorkflow = async (campaignId: string, data: CampaignData): Promise<{ success: boolean; error?: string; webhookStatus?: number }> => {
     try {
-      console.log("Triggering n8n workflow securely for campaign:", campaignId);
+      console.log("🚀 Triggering n8n workflow securely for campaign:", campaignId);
 
       const { data: result, error } = await supabase.functions.invoke('trigger-n8n-workflow', {
         body: {
@@ -95,15 +99,21 @@ export const useCampaignCreation = () => {
       });
 
       if (error) {
-        console.error("Error invoking n8n workflow:", error);
-        return false;
+        console.error("❌ Error invoking n8n workflow:", error);
+        return { success: false, error: error.message };
       }
 
-      console.log("n8n workflow triggered successfully:", result);
-      return true;
-    } catch (error) {
-      console.error("Error triggering n8n workflow:", error);
-      return false;
+      if (result && !result.success) {
+        console.error("❌ n8n workflow failed:", result.error);
+        return { success: false, error: result.error, webhookStatus: result.webhookStatus };
+      }
+
+      console.log("✅ n8n workflow triggered successfully:", result);
+      return { success: true, webhookStatus: result?.webhookStatus };
+      
+    } catch (error: any) {
+      console.error("❌ Error triggering n8n workflow:", error);
+      return { success: false, error: error.message };
     }
   };
 

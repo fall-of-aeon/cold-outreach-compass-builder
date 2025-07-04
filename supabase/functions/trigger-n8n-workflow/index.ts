@@ -32,18 +32,30 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { campaignId, campaignData }: N8nPayload = await req.json();
 
-    console.log("Triggering n8n workflow for campaign:", campaignId);
+    console.log("🚀 Triggering n8n workflow for campaign:", campaignId);
+    console.log("📊 Campaign data:", {
+      name: campaignData.name,
+      location: campaignData.location,
+      industry: campaignData.industry,
+      seniority: campaignData.seniority,
+      companySize: campaignData.companySize
+    });
 
-    // Get webhook URL from environment variable (not from campaign data)
+    // Get webhook URL from environment variable
     const n8nWebhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
     
     if (!n8nWebhookUrl) {
-      console.error("N8N_WEBHOOK_URL not configured in environment");
+      console.error("❌ N8N_WEBHOOK_URL not configured in environment");
       return new Response(
-        JSON.stringify({ error: "N8N_WEBHOOK_URL not configured in environment" }),
+        JSON.stringify({ 
+          error: "N8N_WEBHOOK_URL not configured in environment",
+          success: false 
+        }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    console.log("🔗 Using n8n webhook (URL configured)");
 
     // Prepare payload for n8n
     const n8nPayload = {
@@ -62,61 +74,129 @@ const handler = async (req: Request): Promise<Response> => {
       version: "2.0"
     };
 
-    // 🔒 SECURITY FIX: Never log the webhook URL
-    console.log("Sending payload to n8n webhook (URL hidden for security)");
+    console.log("📤 Sending payload to n8n webhook...");
 
-    // Trigger n8n webhook
-    const n8nResponse = await fetch(n8nWebhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(n8nPayload),
-    });
+    // Trigger n8n webhook with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-    if (!n8nResponse.ok) {
-      // 🔒 SECURITY FIX: Don't expose webhook URL in error messages
-      console.error(`n8n webhook failed with status: ${n8nResponse.status}`);
-      throw new Error(`n8n webhook failed: ${n8nResponse.status}`);
+    try {
+      const n8nResponse = await fetch(n8nWebhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "Supabase-Edge-Function/1.0",
+        },
+        body: JSON.stringify(n8nPayload),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      console.log(`📨 n8n webhook response status: ${n8nResponse.status}`);
+
+      if (!n8nResponse.ok) {
+        const errorText = await n8nResponse.text().catch(() => "Unknown error");
+        console.error(`❌ n8n webhook failed with status: ${n8nResponse.status}, error: ${errorText}`);
+        
+        // Log the failure but don't completely fail the campaign creation
+        await supabase.rpc('log_workflow_event', {
+          p_campaign_id: campaignId,
+          p_event_type: 'webhook_failed',
+          p_step_name: 'n8n_webhook',
+          p_message: `n8n webhook failed with status: ${n8nResponse.status}`,
+          p_data: { response_status: n8nResponse.status, error: errorText }
+        });
+
+        return new Response(
+          JSON.stringify({ 
+            error: `n8n webhook failed: ${n8nResponse.status}`,
+            success: false,
+            webhookStatus: n8nResponse.status
+          }),
+          { 
+            status: 500, 
+            headers: { "Content-Type": "application/json", ...corsHeaders } 
+          }
+        );
+      }
+
+      const responseData = await n8nResponse.text();
+      console.log(`✅ n8n webhook successful: ${n8nResponse.status}`);
+      console.log(`📋 n8n response:`, responseData);
+
+      // Log successful workflow trigger
+      await supabase.rpc('log_workflow_event', {
+        p_campaign_id: campaignId,
+        p_event_type: 'workflow_triggered',
+        p_step_name: 'n8n_webhook',
+        p_message: `n8n workflow triggered successfully`,
+        p_data: { 
+          response_status: n8nResponse.status,
+          webhook_response: responseData.substring(0, 500) // Limit response data
+        }
+      });
+
+      // Update campaign status
+      const { error: updateError } = await supabase
+        .from('campaigns')
+        .update({ 
+          status: 'processing',
+          workflow_started_at: new Date().toISOString(),
+          workflow_step: 'lead_discovery'
+        })
+        .eq('id', campaignId);
+
+      if (updateError) {
+        console.error("❌ Failed to update campaign status:", updateError);
+      } else {
+        console.log("✅ Campaign status updated to 'processing'");
+      }
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: "n8n workflow triggered successfully",
+          campaignId: campaignId,
+          webhookStatus: n8nResponse.status
+        }),
+        { 
+          status: 200, 
+          headers: { "Content-Type": "application/json", ...corsHeaders } 
+        }
+      );
+
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError.name === 'AbortError') {
+        console.error("❌ n8n webhook request timed out");
+        return new Response(
+          JSON.stringify({ 
+            error: "n8n webhook request timed out",
+            success: false 
+          }),
+          { status: 408, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
+      
+      console.error("❌ Network error calling n8n webhook:", fetchError.message);
+      return new Response(
+        JSON.stringify({ 
+          error: `Network error: ${fetchError.message}`,
+          success: false 
+        }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
-    console.log(`n8n webhook successful: ${n8nResponse.status}`);
-
-    // Log workflow event
-    await supabase.rpc('log_workflow_event', {
-      p_campaign_id: campaignId,
-      p_event_type: 'workflow_triggered',
-      p_step_name: 'n8n_webhook',
-      p_message: `n8n workflow triggered via webhook`,
-      p_data: { response_status: n8nResponse.status }
-    });
-
-    // Update campaign status
-    await supabase
-      .from('campaigns')
-      .update({ 
-        status: 'processing',
-        workflow_started_at: new Date().toISOString(),
-        workflow_step: 'lead_discovery'
-      })
-      .eq('id', campaignId);
-
+  } catch (error: any) {
+    console.error("❌ Error in trigger-n8n-workflow:", error.message);
     return new Response(
       JSON.stringify({ 
-        success: true, 
-        message: "n8n workflow triggered successfully",
-        campaignId: campaignId
+        error: error.message,
+        success: false 
       }),
-      { 
-        status: 200, 
-        headers: { "Content-Type": "application/json", ...corsHeaders } 
-      }
-    );
-
-  } catch (error: any) {
-    console.error("Error in trigger-n8n-workflow:", error.message);
-    return new Response(
-      JSON.stringify({ error: error.message }),
       { 
         status: 500, 
         headers: { "Content-Type": "application/json", ...corsHeaders } 
