@@ -1,20 +1,22 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Step } from "./types";
+import { Step, CampaignData } from "./types";
 
 interface WizardHeaderProps {
   currentStep: number;
   steps: Step[];
   onClose: () => void;
   createdCampaignId?: string | null;
+  campaignData?: CampaignData;
 }
 
 export const WizardHeader = ({
   currentStep,
   steps,
   onClose,
-  createdCampaignId
+  createdCampaignId,
+  campaignData
 }: WizardHeaderProps) => {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-8 lg:mb-12">

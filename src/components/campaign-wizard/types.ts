@@ -1,3 +1,4 @@
+
 export interface CampaignData {
   name: string;
   location: string;
