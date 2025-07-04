@@ -67,7 +67,6 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
 
   const handleStatusChange = (newStatus: string) => {
     setCurrentStatus(newStatus);
-    // In a real app, this would make an API call
   };
 
   const getStatusColor = (status: string) => {
@@ -76,7 +75,7 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
       case "paused": return "bg-yellow-500";
       case "completed": return "bg-blue-500";
       case "stopped": return "bg-red-500";
-      default: return "bg-gray-500";
+      default: return "bg-muted-foreground";
     }
   };
 
@@ -85,29 +84,29 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
       case "open": return <Eye className="h-4 w-4 text-blue-500" />;
       case "reply": return <Reply className="h-4 w-4 text-green-500" />;
       case "click": return <TrendingUp className="h-4 w-4 text-purple-500" />;
-      case "delivered": return <Mail className="h-4 w-4 text-gray-500" />;
-      default: return <Clock className="h-4 w-4 text-gray-400" />;
+      case "delivered": return <Mail className="h-4 w-4 text-muted-foreground" />;
+      default: return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={onBack}>
+            <Button variant="ghost" onClick={onBack} className="hover:bg-accent">
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
               <div className="flex items-center space-x-3">
-                <h1 className="text-3xl font-bold">{campaign.name}</h1>
-                <Badge variant="outline" className="capitalize">
+                <h1 className="text-3xl font-semibold text-foreground">{campaign.name}</h1>
+                <Badge variant="outline" className="capitalize border-border">
                   <div className={`h-2 w-2 rounded-full ${getStatusColor(currentStatus)} mr-2`} />
                   {currentStatus}
                 </Badge>
               </div>
-              <p className="text-gray-600">Created on {campaign.created}</p>
+              <p className="text-muted-foreground mt-1">Created on {campaign.created}</p>
             </div>
           </div>
           
@@ -133,75 +132,75 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-          <Card className="border-0 shadow-md">
+          <Card className="border border-border bg-card hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{detailedStats.delivered}</div>
-              <div className="text-sm text-gray-600">Delivered</div>
+              <div className="text-2xl font-semibold text-primary">{detailedStats.delivered}</div>
+              <div className="text-sm text-muted-foreground">Delivered</div>
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-md">
+          <Card className="border border-border bg-card hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{detailedStats.opened}</div>
-              <div className="text-sm text-gray-600">Opened</div>
-              <div className="text-xs text-gray-500">{campaign.openRate}%</div>
+              <div className="text-2xl font-semibold text-blue-600">{detailedStats.opened}</div>
+              <div className="text-sm text-muted-foreground">Opened</div>
+              <div className="text-xs text-muted-foreground">{campaign.openRate}%</div>
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-md">
+          <Card className="border border-border bg-card hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600">{detailedStats.clicked}</div>
-              <div className="text-sm text-gray-600">Clicked</div>
-              <div className="text-xs text-gray-500">{((detailedStats.clicked / campaign.sent) * 100).toFixed(1)}%</div>
+              <div className="text-2xl font-semibold text-purple-600">{detailedStats.clicked}</div>
+              <div className="text-sm text-muted-foreground">Clicked</div>
+              <div className="text-xs text-muted-foreground">{((detailedStats.clicked / campaign.sent) * 100).toFixed(1)}%</div>
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-md">
+          <Card className="border border-border bg-card hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-emerald-600">{detailedStats.replied}</div>
-              <div className="text-sm text-gray-600">Replied</div>
-              <div className="text-xs text-gray-500">{((campaign.responses / campaign.sent) * 100).toFixed(1)}%</div>
+              <div className="text-2xl font-semibold text-green-600">{detailedStats.replied}</div>
+              <div className="text-sm text-muted-foreground">Replied</div>
+              <div className="text-xs text-muted-foreground">{((campaign.responses / campaign.sent) * 100).toFixed(1)}%</div>
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-md">
+          <Card className="border border-border bg-card hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">{detailedStats.bounced}</div>
-              <div className="text-sm text-gray-600">Bounced</div>
-              <div className="text-xs text-gray-500">{((detailedStats.bounced / campaign.sent) * 100).toFixed(1)}%</div>
+              <div className="text-2xl font-semibold text-red-600">{detailedStats.bounced}</div>
+              <div className="text-sm text-muted-foreground">Bounced</div>
+              <div className="text-xs text-muted-foreground">{((detailedStats.bounced / campaign.sent) * 100).toFixed(1)}%</div>
             </CardContent>
           </Card>
           
-          <Card className="border-0 shadow-md">
+          <Card className="border border-border bg-card hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">{detailedStats.unsubscribed}</div>
-              <div className="text-sm text-gray-600">Unsubscribed</div>
-              <div className="text-xs text-gray-500">{((detailedStats.unsubscribed / campaign.sent) * 100).toFixed(1)}%</div>
+              <div className="text-2xl font-semibold text-orange-600">{detailedStats.unsubscribed}</div>
+              <div className="text-sm text-muted-foreground">Unsubscribed</div>
+              <div className="text-xs text-muted-foreground">{((detailedStats.unsubscribed / campaign.sent) * 100).toFixed(1)}%</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Progress Overview */}
-        <Card className="border-0 shadow-lg">
+        <Card className="border border-border bg-card">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle>Campaign Progress</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-foreground">Campaign Progress</CardTitle>
+                <CardDescription className="text-muted-foreground">
                   {campaign.sent} of {campaign.total} emails sent
                 </CardDescription>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-semibold text-foreground">
                   {Math.round((campaign.sent / campaign.total) * 100)}%
                 </div>
-                <div className="text-sm text-gray-500">Complete</div>
+                <div className="text-sm text-muted-foreground">Complete</div>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <Progress value={(campaign.sent / campaign.total) * 100} className="h-3" />
-            <div className="flex justify-between mt-2 text-sm text-gray-600">
+            <div className="flex justify-between mt-3 text-sm text-muted-foreground">
               <span>Started {campaign.created}</span>
               <span>
                 {currentStatus === "active" 
@@ -215,7 +214,7 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
 
         {/* Detailed Analytics */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4 bg-muted">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="activity">Activity</TabsTrigger>
             <TabsTrigger value="recipients">Recipients</TabsTrigger>
@@ -224,24 +223,24 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
           
           <TabsContent value="overview" className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border-0 shadow-lg">
+              <Card className="border border-border bg-card">
                 <CardHeader>
-                  <CardTitle>Daily Progress</CardTitle>
-                  <CardDescription>Emails sent and engagement over time</CardDescription>
+                  <CardTitle className="text-foreground">Daily Progress</CardTitle>
+                  <CardDescription className="text-muted-foreground">Emails sent and engagement over time</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {dailyProgress.map((day, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                          <div className="w-12 text-sm font-medium">{day.day}</div>
+                          <div className="w-12 text-sm font-medium text-foreground">{day.day}</div>
                           <div className="flex-1">
-                            <div className="flex space-x-4 text-sm">
+                            <div className="flex space-x-4 text-sm text-muted-foreground">
                               <span>Sent: {day.sent}</span>
                               <span className="text-blue-600">Opened: {day.opened}</span>
                               <span className="text-green-600">Replied: {day.replied}</span>
                             </div>
-                            <Progress value={(day.opened / day.sent) * 100} className="h-2 mt-1" />
+                            <Progress value={(day.opened / day.sent) * 100} className="h-2 mt-2" />
                           </div>
                         </div>
                       </div>
@@ -250,47 +249,47 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-lg">
+              <Card className="border border-border bg-card">
                 <CardHeader>
-                  <CardTitle>Campaign Health</CardTitle>
-                  <CardDescription>Delivery and engagement metrics</CardDescription>
+                  <CardTitle className="text-foreground">Campaign Health</CardTitle>
+                  <CardDescription className="text-muted-foreground">Delivery and engagement metrics</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Delivery Rate</span>
+                    <span className="text-sm text-foreground">Delivery Rate</span>
                     <div className="flex items-center space-x-2">
-                      <span className="font-medium">98.5%</span>
-                      <Badge variant="outline" className="text-green-600 border-green-200">
+                      <span className="font-medium text-foreground">98.5%</span>
+                      <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
                         Excellent
                       </Badge>
                     </div>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Open Rate</span>
+                    <span className="text-sm text-foreground">Open Rate</span>
                     <div className="flex items-center space-x-2">
-                      <span className="font-medium">{campaign.openRate}%</span>
-                      <Badge variant="outline" className="text-blue-600 border-blue-200">
+                      <span className="font-medium text-foreground">{campaign.openRate}%</span>
+                      <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">
                         Above Average
                       </Badge>
                     </div>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Response Rate</span>
+                    <span className="text-sm text-foreground">Response Rate</span>
                     <div className="flex items-center space-x-2">
-                      <span className="font-medium">{((campaign.responses / campaign.sent) * 100).toFixed(1)}%</span>
-                      <Badge variant="outline" className="text-green-600 border-green-200">
+                      <span className="font-medium text-foreground">{((campaign.responses / campaign.sent) * 100).toFixed(1)}%</span>
+                      <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
                         Great
                       </Badge>
                     </div>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Spam Rate</span>
+                    <span className="text-sm text-foreground">Spam Rate</span>
                     <div className="flex items-center space-x-2">
-                      <span className="font-medium">0.1%</span>
-                      <Badge variant="outline" className="text-green-600 border-green-200">
+                      <span className="font-medium text-foreground">0.1%</span>
+                      <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
                         Excellent
                       </Badge>
                     </div>
@@ -301,21 +300,21 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
           </TabsContent>
           
           <TabsContent value="activity" className="space-y-4">
-            <Card className="border-0 shadow-lg">
+            <Card className="border border-border bg-card">
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Real-time updates from your campaign</CardDescription>
+                <CardTitle className="text-foreground">Recent Activity</CardTitle>
+                <CardDescription className="text-muted-foreground">Real-time updates from your campaign</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg">
+                    <div key={index} className="flex items-center space-x-4 p-3 hover:bg-accent rounded-lg transition-colors">
                       {getActivityIcon(activity.type)}
                       <div className="flex-1">
-                        <div className="font-medium">{activity.action}</div>
-                        <div className="text-sm text-gray-600">{activity.contact}</div>
+                        <div className="font-medium text-foreground">{activity.action}</div>
+                        <div className="text-sm text-muted-foreground">{activity.contact}</div>
                       </div>
-                      <div className="text-sm text-gray-500">{activity.time}</div>
+                      <div className="text-sm text-muted-foreground">{activity.time}</div>
                     </div>
                   ))}
                 </div>
@@ -324,16 +323,16 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
           </TabsContent>
           
           <TabsContent value="recipients" className="space-y-4">
-            <Card className="border-0 shadow-lg">
+            <Card className="border border-border bg-card">
               <CardHeader>
-                <CardTitle>Recipient Status</CardTitle>
-                <CardDescription>Detailed breakdown of email recipients</CardDescription>
+                <CardTitle className="text-foreground">Recipient Status</CardTitle>
+                <CardDescription className="text-muted-foreground">Detailed breakdown of email recipients</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">Recipient details will be loaded here</p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Recipient details will be loaded here</p>
+                  <p className="text-sm text-muted-foreground mt-2">
                     Track individual recipient interactions and responses
                   </p>
                 </div>
@@ -342,16 +341,16 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
           </TabsContent>
           
           <TabsContent value="performance" className="space-y-4">
-            <Card className="border-0 shadow-lg">
+            <Card className="border border-border bg-card">
               <CardHeader>
-                <CardTitle>Performance Analytics</CardTitle>
-                <CardDescription>Detailed performance metrics and insights</CardDescription>
+                <CardTitle className="text-foreground">Performance Analytics</CardTitle>
+                <CardDescription className="text-muted-foreground">Detailed performance metrics and insights</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-8">
-                  <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">Advanced analytics coming soon</p>
-                  <p className="text-sm text-gray-500 mt-2">
+                  <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Advanced analytics coming soon</p>
+                  <p className="text-sm text-muted-foreground mt-2">
                     A/B test results, conversion tracking, and ROI analysis
                   </p>
                 </div>
@@ -360,15 +359,15 @@ export const CampaignMonitor = ({ campaign, onBack }: CampaignMonitorProps) => {
           </TabsContent>
         </Tabs>
 
-        {/* Alerts & Notifications */}
+        {/* Status Alert */}
         {currentStatus === "active" && (
-          <Card className="border-0 shadow-lg bg-blue-50 border-blue-200">
+          <Card className="border-primary/20 bg-primary/5">
             <CardContent className="p-4">
               <div className="flex items-start space-x-3">
-                <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                <AlertCircle className="h-5 w-5 text-primary mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-blue-800">Campaign Status: Active</h4>
-                  <p className="text-sm text-blue-700 mt-1">
+                  <h4 className="font-medium text-primary">Campaign Status: Active</h4>
+                  <p className="text-sm text-primary/80 mt-1">
                     Your campaign is running smoothly. Next batch of emails will be sent in 4 hours.
                   </p>
                 </div>
