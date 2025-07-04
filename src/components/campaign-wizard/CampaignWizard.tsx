@@ -2,14 +2,14 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { CampaignData, CampaignWizardProps } from "./campaign-wizard/types";
-import { steps } from "./campaign-wizard/data";
-import { WizardHeader } from "./campaign-wizard/WizardHeader";
-import { WizardProgressBar } from "./campaign-wizard/WizardProgressBar";
-import { WizardNavigation } from "./campaign-wizard/WizardNavigation";
-import { StepRenderer } from "./campaign-wizard/StepRenderer";
-import { useCampaignCreation } from "./campaign-wizard/CampaignCreationHandler";
-import { useWizardValidation } from "./campaign-wizard/WizardValidation";
+import { CampaignData, CampaignWizardProps } from "./types";
+import { steps } from "./data";
+import { WizardHeader } from "./WizardHeader";
+import { WizardProgressBar } from "./WizardProgressBar";
+import { WizardNavigation } from "./WizardNavigation";
+import { StepRenderer } from "./StepRenderer";
+import { useCampaignCreation } from "./CampaignCreationHandler";
+import { useWizardValidation } from "./WizardValidation";
 
 export const CampaignWizard = ({ onClose, onComplete }: CampaignWizardProps) => {
   const [currentStep, setCurrentStep] = useState(1);
