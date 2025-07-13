@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -127,6 +126,19 @@ export class SupabaseService {
     }
 
     return data;
+  }
+
+  // Delete campaign
+  static async deleteCampaign(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('campaigns')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting campaign:', error);
+      throw new Error(`Failed to delete campaign: ${error.message}`);
+    }
   }
 
   // Update campaign metrics (called by n8n webhooks)

@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { SupabaseService } from '@/services/supabaseService';
 import { toast } from '@/hooks/use-toast';
@@ -86,6 +85,32 @@ export const useUpdateCampaignStatus = () => {
       toast({
         title: "Status Updated",
         description: `Campaign status changed to ${data.status}`
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+};
+
+// Delete campaign mutation
+export const useDeleteCampaign = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: SupabaseService.deleteCampaign,
+    onSuccess: () => {
+      // Invalidate and refetch related queries
+      queryClient.invalidateQueries({ queryKey: queryKeys.campaigns });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboardStats });
+      
+      toast({
+        title: "Campaign Deleted",
+        description: "Campaign has been permanently deleted."
       });
     },
     onError: (error: Error) => {
