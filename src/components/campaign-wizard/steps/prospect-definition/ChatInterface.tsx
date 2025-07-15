@@ -118,14 +118,31 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
     setCurrentMessage("");
     setIsLoading(true);
 
-    // Log user message to database
+    // Prepare metadata to send to n8n
+    const messageMetadata = {
+      campaignId: campaignId,
+      sessionId: sessionId,
+      messageCount: messages.length + 1,
+      campaignData: campaignData,
+      userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      messageId: userMessage.id,
+      conversationContext: {
+        previousMessages: messages.slice(-3).map(msg => ({
+          sender: msg.sender,
+          content: msg.content.substring(0, 100) // Truncate for context
+        }))
+      }
+    };
+
+    // Log user message to database with metadata
     if (campaignId) {
       try {
         await SupabaseService.logChatMessage(
           campaignId,
           sessionId,
           userMessage.content,
-          'user'
+          'user',
+          messageMetadata
         );
       } catch (error) {
         console.error('Error logging user message:', error);
@@ -138,7 +155,8 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
         currentMessage,
         sessionId,
         isNewSession,
-        campaignData
+        campaignData,
+        messageMetadata
       );
 
       if (result.success && result.response) {

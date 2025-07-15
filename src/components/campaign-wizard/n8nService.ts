@@ -35,7 +35,8 @@ export const sendChatMessage = async (
   message: string, 
   sessionId: string, 
   isNewSession: boolean,
-  campaignData?: CampaignData
+  campaignData?: CampaignData,
+  metadata?: Record<string, any>
 ): Promise<{ success: boolean; response?: string; error?: string }> => {
   try {
     const payload = {
@@ -43,9 +44,15 @@ export const sendChatMessage = async (
       message: message,
       isNewSession: isNewSession,
       campaignData: campaignData || {},
+      metadata: metadata || {},
       timestamp: new Date().toISOString(),
       source: "lovable-chat-interface"
     };
+
+    console.log('Sending chat message to n8n with metadata:', {
+      ...payload,
+      metadata: metadata
+    });
 
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
