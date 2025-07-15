@@ -61,7 +61,7 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
       if (existingSessionId) {
         const history = await SupabaseService.getChatHistory(existingSessionId);
         const formattedMessages = history.map(msg => ({
-          id: msg.id,
+          id: msg.message_id,
           content: msg.message,
           sender: msg.sender as 'user' | 'assistant',
           timestamp: new Date(msg.created_at),

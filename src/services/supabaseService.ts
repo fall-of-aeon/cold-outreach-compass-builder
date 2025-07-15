@@ -1,4 +1,5 @@
 
+
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -32,9 +33,9 @@ export interface LegacyCampaign {
   created: string;
 }
 
-// Interface for chat history response
+// Interface for chat history response - matches the database function return
 export interface ChatHistoryMessage {
-  id: string;
+  message_id: string;
   sender: string;
   message: string;
   created_at: string;
@@ -243,3 +244,4 @@ export class SupabaseService {
     return data;
   }
 }
+
