@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Send, Bot, User, CheckCircle } from "lucide-react";
-import { sendChatMessage } from "../../n8nService";
+import { supabase } from "@/integrations/supabase/client";
 import { SupabaseService } from "@/services/supabaseService";
 import { CampaignData } from "../../types";
 import { toast } from "@/hooks/use-toast";
@@ -118,7 +118,7 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
     setCurrentMessage("");
     setIsLoading(true);
 
-    // Prepare metadata to send to n8n
+    // Prepare metadata to send with the chat request
     const messageMetadata = {
       campaignId: campaignId,
       sessionId: sessionId,
@@ -131,7 +131,9 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
           sender: msg.sender,
           content: msg.content.substring(0, 100) // Truncate for context
         }))
-      }
+      },
+      messageType: 'chat_interaction',
+      userInput: currentMessage
     };
 
     // Log user message to database with metadata
@@ -150,55 +152,74 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
     }
 
     try {
-      const isNewSession = messages.length <= 1;
-      const result = await sendChatMessage(
-        currentMessage,
-        sessionId,
-        isNewSession,
-        campaignData,
-        messageMetadata
-      );
-
-      if (result.success && result.response) {
-        const aiMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          content: result.response,
-          sender: 'assistant',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, aiMessage]);
-
-        // Log AI response to database
-        if (campaignId) {
-          try {
-            await SupabaseService.logChatMessage(
-              campaignId,
-              sessionId,
-              aiMessage.content,
-              'assistant'
-            );
-          } catch (error) {
-            console.error('Error logging AI message:', error);
+      console.log('Sending chat message via Supabase edge function');
+      
+      // Use the Supabase edge function to handle the n8n communication
+      const { data, error } = await supabase.functions.invoke('trigger-n8n-workflow', {
+        body: {
+          campaignId: campaignId,
+          messageType: 'chat_message',
+          chatData: {
+            sessionId: sessionId,
+            message: currentMessage,
+            metadata: messageMetadata,
+            isNewSession: messages.length <= 1
+          },
+          campaignData: {
+            name: campaignData.name,
+            location: campaignData.location,
+            industry: campaignData.industry,
+            seniority: campaignData.seniority,
+            companySize: campaignData.companySize,
+            prospectDescription: campaignData.prospectDescription
           }
         }
-      } else {
-        const errorMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          content: "I'm sorry, I encountered an error. Please try again or use the dropdown form instead.",
-          sender: 'assistant',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, errorMessage]);
+      });
+
+      if (error) {
+        throw error;
       }
+
+      // The n8n workflow should return an AI response
+      const aiResponse = data?.aiResponse || data?.response || "I understand your requirements. Let me help you refine your target audience criteria.";
+      
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: aiResponse,
+        sender: 'assistant',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiMessage]);
+
+      // Log AI response to database
+      if (campaignId) {
+        try {
+          await SupabaseService.logChatMessage(
+            campaignId,
+            sessionId,
+            aiMessage.content,
+            'assistant'
+          );
+        } catch (error) {
+          console.error('Error logging AI message:', error);
+        }
+      }
+
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: "I'm sorry, I encountered an error. Please try again or use the dropdown form instead.",
+        content: "I'm sorry, I encountered an error connecting to the AI service. Please try again or use the dropdown form instead.",
         sender: 'assistant',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Connection Error",
+        description: "Unable to connect to the AI service. Please check your configuration.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }

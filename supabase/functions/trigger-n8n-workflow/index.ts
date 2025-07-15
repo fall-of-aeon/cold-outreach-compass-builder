@@ -9,6 +9,13 @@ const corsHeaders = {
 
 interface N8nPayload {
   campaignId: string;
+  messageType?: string;
+  chatData?: {
+    sessionId: string;
+    message: string;
+    metadata: Record<string, any>;
+    isNewSession: boolean;
+  };
   campaignData: {
     name: string;
     location: string;
@@ -30,16 +37,10 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { campaignId, campaignData }: N8nPayload = await req.json();
+    const { campaignId, messageType, chatData, campaignData }: N8nPayload = await req.json();
 
     console.log("🚀 Triggering n8n workflow for campaign:", campaignId);
-    console.log("📊 Campaign data:", {
-      name: campaignData.name,
-      location: campaignData.location,
-      industry: campaignData.industry,
-      seniority: campaignData.seniority,
-      companySize: campaignData.companySize
-    });
+    console.log("📊 Message type:", messageType);
 
     // Get webhook URL from environment variable
     const n8nWebhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
@@ -61,6 +62,8 @@ const handler = async (req: Request): Promise<Response> => {
     const n8nPayload = {
       timestamp: new Date().toISOString(),
       campaignId: campaignId,
+      messageType: messageType || "campaign_trigger",
+      chatData: chatData || null,
       campaignData: {
         id: campaignId,
         name: campaignData.name,
@@ -75,10 +78,17 @@ const handler = async (req: Request): Promise<Response> => {
     };
 
     console.log("📤 Sending payload to n8n webhook...");
+    if (messageType === "chat_message") {
+      console.log("💬 Chat message data:", {
+        sessionId: chatData?.sessionId,
+        messageLength: chatData?.message?.length,
+        isNewSession: chatData?.isNewSession
+      });
+    }
 
     // Trigger n8n webhook with timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for chat responses
 
     try {
       const n8nResponse = await fetch(n8nWebhookUrl, {
@@ -123,42 +133,66 @@ const handler = async (req: Request): Promise<Response> => {
 
       const responseData = await n8nResponse.text();
       console.log(`✅ n8n webhook successful: ${n8nResponse.status}`);
-      console.log(`📋 n8n response:`, responseData);
+      console.log(`📋 n8n response:`, responseData.substring(0, 200) + "...");
+
+      // Try to parse response as JSON to extract AI response for chat messages
+      let parsedResponse;
+      let aiResponse = null;
+      
+      try {
+        parsedResponse = JSON.parse(responseData);
+        // Look for AI response in various possible fields
+        aiResponse = parsedResponse.aiResponse || 
+                   parsedResponse.response || 
+                   parsedResponse.message || 
+                   parsedResponse.reply;
+      } catch (parseError) {
+        console.log("Response is not JSON, treating as plain text");
+        // If it's not JSON, treat the whole response as the AI response for chat messages
+        if (messageType === "chat_message") {
+          aiResponse = responseData;
+        }
+      }
 
       // Log successful workflow trigger
       await supabase.rpc('log_workflow_event', {
         p_campaign_id: campaignId,
-        p_event_type: 'workflow_triggered',
+        p_event_type: messageType === "chat_message" ? 'chat_message_processed' : 'workflow_triggered',
         p_step_name: 'n8n_webhook',
-        p_message: `n8n workflow triggered successfully`,
+        p_message: messageType === "chat_message" ? 'Chat message processed by n8n' : 'n8n workflow triggered successfully',
         p_data: { 
           response_status: n8nResponse.status,
-          webhook_response: responseData.substring(0, 500) // Limit response data
+          webhook_response: responseData.substring(0, 500), // Limit response data
+          messageType: messageType
         }
       });
 
-      // Update campaign status
-      const { error: updateError } = await supabase
-        .from('campaigns')
-        .update({ 
-          status: 'processing',
-          workflow_started_at: new Date().toISOString(),
-          workflow_step: 'lead_discovery'
-        })
-        .eq('id', campaignId);
+      // Update campaign status for non-chat messages
+      if (messageType !== "chat_message") {
+        const { error: updateError } = await supabase
+          .from('campaigns')
+          .update({ 
+            status: 'processing',
+            workflow_started_at: new Date().toISOString(),
+            workflow_step: 'lead_discovery'
+          })
+          .eq('id', campaignId);
 
-      if (updateError) {
-        console.error("❌ Failed to update campaign status:", updateError);
-      } else {
-        console.log("✅ Campaign status updated to 'processing'");
+        if (updateError) {
+          console.error("❌ Failed to update campaign status:", updateError);
+        } else {
+          console.log("✅ Campaign status updated to 'processing'");
+        }
       }
 
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: "n8n workflow triggered successfully",
+          message: messageType === "chat_message" ? "Chat message processed" : "n8n workflow triggered successfully",
           campaignId: campaignId,
-          webhookStatus: n8nResponse.status
+          webhookStatus: n8nResponse.status,
+          aiResponse: aiResponse, // Include AI response for chat messages
+          response: aiResponse // Also include as 'response' for backward compatibility
         }),
         { 
           status: 200, 
