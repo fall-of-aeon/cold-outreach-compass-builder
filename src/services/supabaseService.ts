@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -29,6 +30,16 @@ export interface LegacyCampaign {
   responses: number;
   openRate: number;
   created: string;
+}
+
+// Interface for chat history response
+export interface ChatHistoryMessage {
+  id: string;
+  sender: string;
+  message: string;
+  created_at: string;
+  metadata: any;
+  message_order: number;
 }
 
 export class SupabaseService {
@@ -205,7 +216,7 @@ export class SupabaseService {
     return data;
   }
 
-  static async getChatHistory(sessionId: string): Promise<ChatMessage[]> {
+  static async getChatHistory(sessionId: string): Promise<ChatHistoryMessage[]> {
     const { data, error } = await supabase.rpc('get_chat_history', {
       p_session_id: sessionId
     });

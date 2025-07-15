@@ -65,7 +65,7 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
           content: msg.message,
           sender: msg.sender as 'user' | 'assistant',
           timestamp: new Date(msg.created_at),
-          metadata: msg.metadata
+          metadata: msg.metadata ? (typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : msg.metadata as Record<string, any>) : undefined
         }));
         setMessages(formattedMessages);
       } else {
