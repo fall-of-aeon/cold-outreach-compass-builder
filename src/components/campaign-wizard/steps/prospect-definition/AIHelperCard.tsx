@@ -3,9 +3,17 @@ import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
-export const AIHelperCard = () => {
+interface AIHelperCardProps {
+  onOpenChat?: () => void;
+}
+
+export const AIHelperCard = ({ onOpenChat }: AIHelperCardProps) => {
   const handleAIHelper = () => {
-    console.log("AI Helper clicked - would open prompt assistant");
+    if (onOpenChat) {
+      onOpenChat();
+    } else {
+      console.log("AI Helper clicked - would open prompt assistant");
+    }
   };
 
   return (
