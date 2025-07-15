@@ -11,9 +11,10 @@ import { ChatInterface } from "./prospect-definition/ChatInterface";
 interface ProspectDefinitionStepProps {
   campaignData: CampaignData;
   setCampaignData: (data: CampaignData) => void;
+  campaignId?: string | null;
 }
 
-export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: ProspectDefinitionStepProps) => {
+export const ProspectDefinitionStep = ({ campaignData, setCampaignData, campaignId }: ProspectDefinitionStepProps) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleApplyFromChat = (chatData: Partial<CampaignData>) => {
@@ -36,6 +37,7 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData }: Prospe
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
         campaignData={campaignData}
+        campaignId={campaignId}
         onApplyToForm={handleApplyFromChat}
       />
     </div>

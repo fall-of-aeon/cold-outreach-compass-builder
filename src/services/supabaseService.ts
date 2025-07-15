@@ -6,6 +6,7 @@ export type Campaign = Database['public']['Tables']['campaigns']['Row'];
 export type CampaignInsert = Database['public']['Tables']['campaigns']['Insert'];
 export type CampaignUpdate = Database['public']['Tables']['campaigns']['Update'];
 export type WorkflowEvent = Database['public']['Tables']['workflow_events']['Row'];
+export type ChatMessage = Database['public']['Tables']['chat_messages']['Row'];
 
 export interface DashboardStats {
   totalCampaigns: number;
@@ -178,5 +179,56 @@ export class SupabaseService {
       openRate: Number(campaign.open_rate) || 0,
       created: campaign.created_at || new Date().toISOString()
     };
+  }
+
+  // Chat message functions
+  static async logChatMessage(
+    campaignId: string,
+    sessionId: string,
+    message: string,
+    sender: 'user' | 'assistant',
+    metadata?: Record<string, any>
+  ): Promise<string> {
+    const { data, error } = await supabase.rpc('log_chat_message', {
+      p_campaign_id: campaignId,
+      p_session_id: sessionId,
+      p_message: message,
+      p_sender: sender,
+      p_metadata: metadata || {}
+    });
+
+    if (error) {
+      console.error('Error logging chat message:', error);
+      throw new Error(`Failed to log chat message: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  static async getChatHistory(sessionId: string): Promise<ChatMessage[]> {
+    const { data, error } = await supabase.rpc('get_chat_history', {
+      p_session_id: sessionId
+    });
+
+    if (error) {
+      console.error('Error fetching chat history:', error);
+      throw new Error(`Failed to fetch chat history: ${error.message}`);
+    }
+
+    return data || [];
+  }
+
+  static async updateCampaignSession(campaignId: string, sessionId: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('update_campaign_session', {
+      p_campaign_id: campaignId,
+      p_session_id: sessionId
+    });
+
+    if (error) {
+      console.error('Error updating campaign session:', error);
+      throw new Error(`Failed to update campaign session: ${error.message}`);
+    }
+
+    return data;
   }
 }

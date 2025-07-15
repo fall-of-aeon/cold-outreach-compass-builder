@@ -6,23 +6,27 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2, Send, Bot, User, CheckCircle } from "lucide-react";
 import { sendChatMessage } from "../../n8nService";
+import { SupabaseService } from "@/services/supabaseService";
 import { CampaignData } from "../../types";
+import { toast } from "@/hooks/use-toast";
 
 interface ChatMessage {
   id: string;
   content: string;
-  sender: 'user' | 'ai';
+  sender: 'user' | 'assistant';
   timestamp: Date;
+  metadata?: Record<string, any>;
 }
 
 interface ChatInterfaceProps {
   isOpen: boolean;
   onClose: () => void;
   campaignData: CampaignData;
+  campaignId?: string | null;
   onApplyToForm?: (data: Partial<CampaignData>) => void;
 }
 
-export const ChatInterface = ({ isOpen, onClose, campaignData, onApplyToForm }: ChatInterfaceProps) => {
+export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApplyToForm }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -37,17 +41,68 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, onApplyToForm }: 
     scrollToBottom();
   }, [messages]);
 
+  // Load chat history when dialog opens
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      // Initialize conversation with welcome message
-      setMessages([{
-        id: '1',
-        content: "Hi! I'm here to help you define your ideal prospects. You can describe your target audience in natural language instead of using the dropdown menus. For example, you could say 'I want marketing directors at fast-growing SaaS companies in the US' or 'Find me founders who recently raised Series A funding in major cities'. What kind of prospects are you looking for?",
-        sender: 'ai',
-        timestamp: new Date()
-      }]);
+    if (isOpen && campaignId) {
+      loadChatHistory();
+    } else if (isOpen && messages.length === 0) {
+      initializeConversation();
     }
-  }, [isOpen, messages.length]);
+  }, [isOpen, campaignId]);
+
+  const loadChatHistory = async () => {
+    if (!campaignId) return;
+
+    try {
+      // First, try to get existing session from campaign
+      const campaign = await SupabaseService.getCampaign(campaignId);
+      const existingSessionId = campaign?.chat_session_id;
+
+      if (existingSessionId) {
+        const history = await SupabaseService.getChatHistory(existingSessionId);
+        const formattedMessages = history.map(msg => ({
+          id: msg.id,
+          content: msg.message,
+          sender: msg.sender as 'user' | 'assistant',
+          timestamp: new Date(msg.created_at),
+          metadata: msg.metadata
+        }));
+        setMessages(formattedMessages);
+      } else {
+        // Link this session to the campaign and initialize
+        await SupabaseService.updateCampaignSession(campaignId, sessionId);
+        initializeConversation();
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      initializeConversation();
+    }
+  };
+
+  const initializeConversation = async () => {
+    const welcomeMessage: ChatMessage = {
+      id: 'welcome',
+      content: "Hi! I'm here to help you define your ideal prospects. You can describe your target audience in natural language instead of using the dropdown menus. For example, you could say 'I want marketing directors at fast-growing SaaS companies in the US' or 'Find me founders who recently raised Series A funding in major cities'. What kind of prospects are you looking for?",
+      sender: 'assistant',
+      timestamp: new Date()
+    };
+
+    setMessages([welcomeMessage]);
+
+    // Log welcome message to database if we have a campaign
+    if (campaignId) {
+      try {
+        await SupabaseService.logChatMessage(
+          campaignId,
+          sessionId,
+          welcomeMessage.content,
+          'assistant'
+        );
+      } catch (error) {
+        console.error('Error logging welcome message:', error);
+      }
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return;
@@ -63,6 +118,20 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, onApplyToForm }: 
     setCurrentMessage("");
     setIsLoading(true);
 
+    // Log user message to database
+    if (campaignId) {
+      try {
+        await SupabaseService.logChatMessage(
+          campaignId,
+          sessionId,
+          userMessage.content,
+          'user'
+        );
+      } catch (error) {
+        console.error('Error logging user message:', error);
+      }
+    }
+
     try {
       const isNewSession = messages.length <= 1;
       const result = await sendChatMessage(
@@ -76,15 +145,29 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, onApplyToForm }: 
         const aiMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           content: result.response,
-          sender: 'ai',
+          sender: 'assistant',
           timestamp: new Date()
         };
         setMessages(prev => [...prev, aiMessage]);
+
+        // Log AI response to database
+        if (campaignId) {
+          try {
+            await SupabaseService.logChatMessage(
+              campaignId,
+              sessionId,
+              aiMessage.content,
+              'assistant'
+            );
+          } catch (error) {
+            console.error('Error logging AI message:', error);
+          }
+        }
       } else {
         const errorMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           content: "I'm sorry, I encountered an error. Please try again or use the dropdown form instead.",
-          sender: 'ai',
+          sender: 'assistant',
           timestamp: new Date()
         };
         setMessages(prev => [...prev, errorMessage]);
@@ -94,7 +177,7 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, onApplyToForm }: 
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: "I'm sorry, I encountered an error. Please try again or use the dropdown form instead.",
-        sender: 'ai',
+        sender: 'assistant',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -110,24 +193,39 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, onApplyToForm }: 
     }
   };
 
-  const handleApplyToForm = () => {
-    // This would typically parse the conversation to extract criteria
-    // For now, we'll show a success message
+  const handleApplyToForm = async () => {
     const successMessage: ChatMessage = {
       id: Date.now().toString(),
       content: "Great! I'll help you apply these criteria to your form. The conversation will be processed to extract the targeting parameters.",
-      sender: 'ai',
+      sender: 'assistant',
       timestamp: new Date()
     };
     setMessages(prev => [...prev, successMessage]);
+
+    // Log success message to database
+    if (campaignId) {
+      try {
+        await SupabaseService.logChatMessage(
+          campaignId,
+          sessionId,
+          successMessage.content,
+          'assistant'
+        );
+      } catch (error) {
+        console.error('Error logging success message:', error);
+      }
+    }
     
-    // In a real implementation, you'd parse the conversation and extract:
-    // location, industry, seniority, companySize, prospectDescription
     if (onApplyToForm) {
       onApplyToForm({
         prospectDescription: "AI-generated targeting criteria from chat conversation"
       });
     }
+
+    toast({
+      title: "Chat Applied",
+      description: "Your conversation has been saved and linked to this campaign."
+    });
   };
 
   return (
@@ -137,6 +235,11 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, onApplyToForm }: 
           <DialogTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-primary" />
             AI Prospect Targeting Assistant
+            {campaignId && (
+              <span className="text-xs text-muted-foreground ml-2">
+                Session: {sessionId.slice(-8)}
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
 
@@ -147,7 +250,7 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, onApplyToForm }: 
                 key={message.id}
                 className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {message.sender === 'ai' && (
+                {message.sender === 'assistant' && (
                   <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
                     <Bot className="h-4 w-4 text-primary" />
                   </div>

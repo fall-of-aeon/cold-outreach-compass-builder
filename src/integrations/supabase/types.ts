@@ -17,6 +17,7 @@ export type Database = {
       campaigns: {
         Row: {
           airtable_search_id: string | null
+          chat_session_id: string | null
           company_size: string | null
           created_at: string | null
           emails_opened: number | null
@@ -42,6 +43,7 @@ export type Database = {
         }
         Insert: {
           airtable_search_id?: string | null
+          chat_session_id?: string | null
           company_size?: string | null
           created_at?: string | null
           emails_opened?: number | null
@@ -67,6 +69,7 @@ export type Database = {
         }
         Update: {
           airtable_search_id?: string | null
+          chat_session_id?: string | null
           company_size?: string | null
           created_at?: string | null
           emails_opened?: number | null
@@ -91,6 +94,50 @@ export type Database = {
           workflow_step?: string | null
         }
         Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          id: string
+          message: string
+          message_order: number
+          metadata: Json | null
+          sender: string
+          session_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          id?: string
+          message: string
+          message_order?: number
+          metadata?: Json | null
+          sender: string
+          session_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          message_order?: number
+          metadata?: Json | null
+          sender?: string
+          session_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dashboard_cache: {
         Row: {
@@ -159,9 +206,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_chat_history: {
+        Args: { p_session_id: string }
+        Returns: {
+          message_id: string
+          sender: string
+          message: string
+          created_at: string
+          metadata: Json
+          message_order: number
+        }[]
+      }
       get_dashboard_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      log_chat_message: {
+        Args: {
+          p_campaign_id: string
+          p_session_id: string
+          p_message: string
+          p_sender: string
+          p_metadata?: Json
+        }
+        Returns: string
       }
       log_workflow_event: {
         Args: {
@@ -181,6 +249,10 @@ export type Database = {
           p_data?: Json
         }
         Returns: undefined
+      }
+      update_campaign_session: {
+        Args: { p_campaign_id: string; p_session_id: string }
+        Returns: boolean
       }
     }
     Enums: {
