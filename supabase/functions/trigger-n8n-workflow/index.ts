@@ -58,24 +58,45 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("🔗 Using n8n webhook (URL configured)");
 
-    // Prepare payload for n8n
-    const n8nPayload = {
-      timestamp: new Date().toISOString(),
-      campaignId: campaignId,
-      messageType: messageType || "campaign_trigger",
-      chatData: chatData || null,
-      campaignData: {
-        id: campaignId,
-        name: campaignData.name,
-        location: campaignData.location,
-        industry: campaignData.industry,
-        seniority: campaignData.seniority,
-        companySize: campaignData.companySize,
-        prospectDescription: campaignData.prospectDescription || ""
-      },
-      source: "lovable-campaign-wizard-secure",
-      version: "2.0"
-    };
+    // Prepare payload for n8n - different structure for chat messages
+    let n8nPayload;
+    
+    if (messageType === "chat_message") {
+      n8nPayload = {
+        sessionId: chatData?.sessionId,
+        message: chatData?.message,
+        isNewSession: chatData?.isNewSession,
+        campaignData: {
+          id: campaignId,
+          name: campaignData.name,
+          location: campaignData.location,
+          industry: campaignData.industry,
+          seniority: campaignData.seniority,
+          companySize: campaignData.companySize,
+          prospectDescription: campaignData.prospectDescription || ""
+        },
+        timestamp: new Date().toISOString(),
+        source: "lovable-chat-interface"
+      };
+    } else {
+      n8nPayload = {
+        timestamp: new Date().toISOString(),
+        campaignId: campaignId,
+        messageType: messageType || "campaign_trigger",
+        chatData: chatData || null,
+        campaignData: {
+          id: campaignId,
+          name: campaignData.name,
+          location: campaignData.location,
+          industry: campaignData.industry,
+          seniority: campaignData.seniority,
+          companySize: campaignData.companySize,
+          prospectDescription: campaignData.prospectDescription || ""
+        },
+        source: "lovable-campaign-wizard-secure",
+        version: "2.0"
+      };
+    }
 
     console.log("📤 Sending payload to n8n webhook...");
     if (messageType === "chat_message") {
@@ -151,6 +172,32 @@ const handler = async (req: Request): Promise<Response> => {
         // If it's not JSON, treat the whole response as the AI response for chat messages
         if (messageType === "chat_message") {
           aiResponse = responseData;
+        }
+      }
+
+      // Store chat messages in database after successful n8n response
+      if (messageType === "chat_message" && aiResponse && chatData) {
+        try {
+          // Store user message
+          await supabase.rpc('log_chat_message', {
+            p_campaign_id: campaignId,
+            p_session_id: chatData.sessionId,
+            p_message: chatData.message,
+            p_sender: 'user'
+          });
+          
+          // Store AI response
+          await supabase.rpc('log_chat_message', {
+            p_campaign_id: campaignId,
+            p_session_id: chatData.sessionId,
+            p_message: aiResponse,
+            p_sender: 'assistant'
+          });
+          
+          console.log("✅ Chat messages stored successfully");
+        } catch (dbError) {
+          console.error("❌ Failed to store chat messages:", dbError);
+          // Don't fail the entire request if chat storage fails
         }
       }
 
