@@ -181,7 +181,11 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
       }
 
       // The n8n workflow should return an AI response
-      const aiResponse = data?.aiResponse || data?.response || "I understand your requirements. Let me help you refine your target audience criteria.";
+      if (!data?.aiResponse && !data?.response) {
+        throw new Error('No AI response received from n8n workflow');
+      }
+
+      const aiResponse = data?.aiResponse || data?.response;
       
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
