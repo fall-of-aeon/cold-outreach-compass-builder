@@ -155,6 +155,10 @@ const handler = async (req: Request): Promise<Response> => {
       const responseData = await n8nResponse.text();
       console.log(`✅ n8n webhook successful: ${n8nResponse.status}`);
       console.log(`📋 n8n response:`, responseData.substring(0, 200) + "...");
+      
+      // Enhanced debugging as suggested
+      console.log("🔍 FULL n8n response:", responseData);
+      console.log("🔍 Response length:", responseData.length);
 
       // Try to parse response as JSON to extract AI response for chat messages
       let parsedResponse;
@@ -162,16 +166,20 @@ const handler = async (req: Request): Promise<Response> => {
       
       try {
         parsedResponse = JSON.parse(responseData);
+        console.log("✅ Parsed JSON:", parsedResponse);
         // Look for AI response in various possible fields
         aiResponse = parsedResponse.aiResponse || 
                    parsedResponse.response || 
                    parsedResponse.message || 
                    parsedResponse.reply;
+        console.log("🤖 Extracted AI response:", aiResponse);
       } catch (parseError) {
+        console.log("❌ JSON parse failed:", parseError.message);
         console.log("Response is not JSON, treating as plain text");
         // If it's not JSON, treat the whole response as the AI response for chat messages
         if (messageType === "chat_message") {
           aiResponse = responseData;
+          console.log("🤖 Using full response as AI response:", aiResponse);
         }
       }
 
