@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SupabaseService } from "@/services/supabaseService";
 import { CampaignData } from "../../types";
 import { toast } from "@/hooks/use-toast";
+import { MessageRenderer } from "./MessageRenderer";
 
 interface ChatMessage {
   id: string;
@@ -305,7 +306,7 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
                       : 'bg-muted border'
                   }`}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  <MessageRenderer content={message.content} className="text-sm" />
                   <span className="text-xs opacity-70 mt-1 block">
                     {message.timestamp.toLocaleTimeString()}
                   </span>
