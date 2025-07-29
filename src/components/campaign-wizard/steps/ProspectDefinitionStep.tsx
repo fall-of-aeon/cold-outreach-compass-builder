@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import { CampaignData } from "../types";
-import { ProspectHeroSection } from "./prospect-definition/ProspectHeroSection";
-import { ProspectFormFields } from "./prospect-definition/ProspectFormFields";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ChatInterface } from "./prospect-definition/ChatInterface";
 
 interface ProspectDefinitionStepProps {
@@ -12,24 +12,33 @@ interface ProspectDefinitionStepProps {
 }
 
 export const ProspectDefinitionStep = ({ campaignData, setCampaignData, campaignId }: ProspectDefinitionStepProps) => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
   const handleApplyFromChat = (chatData: Partial<CampaignData>) => {
     setCampaignData({
       ...campaignData,
       ...chatData
     });
-    setIsChatOpen(false);
   };
 
   return (
     <div className="space-y-8">
-      <ProspectHeroSection onOpenChat={() => setIsChatOpen(true)} />
-      <ProspectFormFields campaignData={campaignData} setCampaignData={setCampaignData} />
-      
+      {/* Campaign Name Input */}
+      <div className="max-w-2xl mx-auto">
+        <Label htmlFor="campaignName" className="text-sm font-medium text-foreground mb-3 block">
+          Campaign Name *
+        </Label>
+        <Input
+          id="campaignName"
+          placeholder="Q1 2024 SaaS Outreach Campaign"
+          value={campaignData.name}
+          onChange={(e) => setCampaignData({ ...campaignData, name: e.target.value })}
+          className="h-11"
+        />
+      </div>
+
+      {/* Chat Interface - Always Open */}
       <ChatInterface
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
+        isOpen={true}
+        onClose={() => {}} // No close functionality needed
         campaignData={campaignData}
         campaignId={campaignId}
         onApplyToForm={handleApplyFromChat}
