@@ -4,18 +4,17 @@ import { DashboardHeader } from "./DashboardHeader";
 import { DashboardError } from "./DashboardError";
 import { DashboardLoading } from "./DashboardLoading";
 import { CampaignsList } from "./CampaignsList";
-import { CampaignWizard } from "@/components/CampaignWizard";
-import { CampaignMonitor } from "@/components/CampaignMonitor";
+import { SimpleCampaignCreator } from "@/components/SimpleCampaignCreator";
+import { CampaignDetails } from "@/components/CampaignDetails";
 import { PerformanceMetricsGrid } from "./analytics/PerformanceMetricsGrid";
 import { CampaignPerformanceChart } from "./analytics/CampaignPerformanceChart";
 import { ConversionFunnelChart } from "./analytics/ConversionFunnelChart";
 import { CampaignComparisonChart } from "./analytics/CampaignComparisonChart";
 import { useDashboardStats, useCampaigns } from "@/hooks/useSupabase";
-import { SupabaseService, type LegacyCampaign } from "@/services/supabaseService";
 
 export const Dashboard = () => {
-  const [showWizard, setShowWizard] = useState(false);
-  const [selectedCampaign, setSelectedCampaign] = useState<LegacyCampaign | null>(null);
+  const [showCreator, setShowCreator] = useState(false);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
 
   // Real data from Supabase
   const { 
@@ -40,23 +39,24 @@ export const Dashboard = () => {
     return <DashboardError error={statsError?.message || campaignsError?.message} />;
   }
 
-  if (showWizard) {
+  if (showCreator) {
     return (
-      <CampaignWizard 
-        onClose={() => setShowWizard(false)}
-        onComplete={() => {
-          setShowWizard(false);
+      <SimpleCampaignCreator 
+        onBack={() => setShowCreator(false)}
+        onCampaignCreated={(campaignId) => {
+          setShowCreator(false);
+          setSelectedCampaignId(campaignId);
           // Data will auto-refresh via React Query
         }}
       />
     );
   }
 
-  if (selectedCampaign) {
+  if (selectedCampaignId) {
     return (
-      <CampaignMonitor 
-        campaign={selectedCampaign}
-        onBack={() => setSelectedCampaign(null)}
+      <CampaignDetails 
+        campaignId={selectedCampaignId}
+        onBack={() => setSelectedCampaignId(null)}
       />
     );
   }
@@ -64,7 +64,7 @@ export const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6 space-y-8">
-        <DashboardHeader onCreateCampaign={() => setShowWizard(true)} />
+        <DashboardHeader onCreateCampaign={() => setShowCreator(true)} />
         
         {/* Enhanced Analytics Section */}
         <div className="space-y-8">
@@ -86,7 +86,7 @@ export const Dashboard = () => {
         {/* Campaigns List */}
         <CampaignsList 
           campaigns={campaigns} 
-          onCampaignSelect={(campaign) => setSelectedCampaign(SupabaseService.convertToLegacyCampaign(campaign))}
+          onCampaignSelect={(campaign) => setSelectedCampaignId(campaign.id)}
         />
       </div>
     </div>
