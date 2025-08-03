@@ -279,11 +279,6 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
           <DialogTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-primary" />
             AI Prospect Targeting Assistant
-            {campaignId && (
-              <span className="text-xs text-muted-foreground ml-2">
-                Session: {sessionId.slice(-8)}
-              </span>
-            )}
           </DialogTitle>
         </DialogHeader>
 
