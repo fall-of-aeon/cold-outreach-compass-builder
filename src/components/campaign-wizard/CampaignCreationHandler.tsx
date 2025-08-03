@@ -20,12 +20,11 @@ export const useCampaignCreation = () => {
     onSuccess: (campaignId: string) => void,
     onError: () => void
   ) => {
-    // Validate required fields
-    if (!campaignData.name || !campaignData.location || !campaignData.industry || 
-        !campaignData.seniority || !campaignData.companySize) {
+    // Validate required fields - only name is required for simplified flow
+    if (!campaignData.name) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please enter a campaign name.",
         variant: "destructive"
       });
       return;
