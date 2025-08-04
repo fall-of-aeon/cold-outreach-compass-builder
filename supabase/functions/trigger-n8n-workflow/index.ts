@@ -177,9 +177,13 @@ const handler = async (req: Request): Promise<Response> => {
         console.log("❌ JSON parse failed:", parseError.message);
         console.log("Response is not JSON, treating as plain text");
         // If it's not JSON, treat the whole response as the AI response for chat messages
-        if (messageType === "chat_message") {
-          aiResponse = responseData;
+        if (messageType === "chat_message" && responseData.trim()) {
+          aiResponse = responseData.trim();
           console.log("🤖 Using full response as AI response:", aiResponse);
+        } else if (messageType === "chat_message") {
+          // Provide a fallback response if n8n returns empty response
+          aiResponse = "I'm processing your request. Please note that the AI service might be temporarily unavailable. You can continue using the dropdown form to define your prospects.";
+          console.log("🤖 Using fallback AI response");
         }
       }
 
