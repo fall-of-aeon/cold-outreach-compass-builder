@@ -36,6 +36,7 @@ export type Database = {
           status: string
           total_leads_found: number | null
           updated_at: string | null
+          user_id: string | null
           workflow_completed_at: string | null
           workflow_progress: number | null
           workflow_started_at: string | null
@@ -62,6 +63,7 @@ export type Database = {
           status?: string
           total_leads_found?: number | null
           updated_at?: string | null
+          user_id?: string | null
           workflow_completed_at?: string | null
           workflow_progress?: number | null
           workflow_started_at?: string | null
@@ -88,6 +90,7 @@ export type Database = {
           status?: string
           total_leads_found?: number | null
           updated_at?: string | null
+          user_id?: string | null
           workflow_completed_at?: string | null
           workflow_progress?: number | null
           workflow_started_at?: string | null

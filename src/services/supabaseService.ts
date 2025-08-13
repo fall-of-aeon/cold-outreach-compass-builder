@@ -107,10 +107,18 @@ export class SupabaseService {
     company_size?: string;
     prospect_description?: string;
   }): Promise<Campaign> {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error('User must be authenticated to create campaigns');
+    }
+
     const { data, error } = await supabase
       .from('campaigns')
       .insert({
         ...campaignData,
+        user_id: user.id,
         status: 'draft'
       })
       .select()
