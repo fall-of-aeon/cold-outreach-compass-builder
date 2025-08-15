@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -212,12 +212,12 @@ export type Database = {
       get_chat_history: {
         Args: { p_session_id: string }
         Returns: {
-          message_id: string
-          sender: string
-          message: string
           created_at: string
-          metadata: Json
+          message: string
+          message_id: string
           message_order: number
+          metadata: Json
+          sender: string
         }[]
       }
       get_dashboard_stats: {
@@ -227,29 +227,29 @@ export type Database = {
       log_chat_message: {
         Args: {
           p_campaign_id: string
-          p_session_id: string
           p_message: string
-          p_sender: string
           p_metadata?: Json
+          p_sender: string
+          p_session_id: string
         }
         Returns: string
       }
       log_workflow_event: {
         Args: {
           p_campaign_id: string
-          p_event_type: string
-          p_step_name?: string
-          p_message?: string
           p_data?: Json
+          p_event_type: string
+          p_message?: string
+          p_step_name?: string
         }
         Returns: string
       }
       update_campaign_progress: {
         Args: {
           p_campaign_id: string
-          p_step: string
-          p_progress: number
           p_data?: Json
+          p_progress: number
+          p_step: string
         }
         Returns: undefined
       }
