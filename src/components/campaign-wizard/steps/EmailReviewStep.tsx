@@ -3,48 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, Edit, Eye, Send } from "lucide-react";
-import { EnrichedLead } from "../types";
+import { CampaignData, AirtableLead } from "../types";
 import { useState } from "react";
 
 interface EmailReviewStepProps {
+  campaignData: CampaignData;
   onNext: () => void;
 }
 
-export const EmailReviewStep = ({ onNext }: EmailReviewStepProps) => {
+export const EmailReviewStep = ({ campaignData, onNext }: EmailReviewStepProps) => {
   const [selectedLead, setSelectedLead] = useState<string | null>(null);
 
-  // Mock data - in real app this would come from your n8n workflow
-  const mockLeads: EnrichedLead[] = [
-    {
-      id: "1",
-      name: "Sarah Chen",
-      title: "Founder & CEO",
-      company: "TechFlow Solutions",
-      email: "sarah@techflow.com",
-      linkedinProfile: "linkedin.com/in/sarahchen",
-      companyWebsite: "techflow.com",
-      generatedEmail: "Hi Sarah,\n\nI noticed TechFlow Solutions recently expanded to the West Coast - congratulations! Your focus on streamlining B2B workflows caught my attention.\n\nI'd love to show you how we're helping similar SaaS founders reduce their customer acquisition costs by 40%. Would you be open to a brief 15-minute call this week?\n\nBest regards,\n[Your name]",
-      score: 92
-    },
-    {
-      id: "2", 
-      name: "Marcus Rodriguez",
-      title: "CTO",
-      company: "DataVault Inc",
-      email: "marcus@datavault.com",
-      generatedEmail: "Hi Marcus,\n\nSaw your recent post about scaling infrastructure challenges at DataVault. Your insights on distributed systems really resonated.\n\nWe've helped similar CTOs solve scaling issues while cutting costs by 30%. Would you be interested in a quick chat about your current challenges?\n\nCheers,\n[Your name]",
-      score: 88
-    },
-    {
-      id: "3",
-      name: "Jessica Park",
-      title: "VP of Growth", 
-      company: "CloudMetrics",
-      email: "jessica@cloudmetrics.com",
-      generatedEmail: "Hi Jessica,\n\nI came across CloudMetrics' impressive growth trajectory - 200% YoY is fantastic! Your approach to product-led growth is inspiring.\n\nI'd love to share how we're helping similar growth leaders accelerate their funnels. Free for a 10-minute call this week?\n\nBest,\n[Your name]",
-      score: 85
-    }
-  ];
+  // Use selected leads from previous step or fallback to empty array
+  const leads: AirtableLead[] = campaignData.selectedLeads || [];
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "bg-green-500";
@@ -68,17 +39,24 @@ export const EmailReviewStep = ({ onNext }: EmailReviewStepProps) => {
       <div className="bg-blue-50 p-4 rounded-lg mb-6">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="font-semibold text-blue-900">Qualified Prospects Found</h3>
-            <p className="text-sm text-blue-700">{mockLeads.length} high-quality leads ready for outreach</p>
+            <h3 className="font-semibold text-blue-900">Selected Leads</h3>
+            <p className="text-sm text-blue-700">{leads.length} leads ready for email outreach</p>
           </div>
-          <Badge variant="secondary" className="bg-blue-200 text-blue-800">
-            AI Score: 88.3 avg
-          </Badge>
+          {leads.length > 0 && (
+            <Badge variant="secondary" className="bg-blue-200 text-blue-800">
+              Avg Score: {Math.round(leads.reduce((sum, lead) => sum + lead.score, 0) / leads.length)}
+            </Badge>
+          )}
         </div>
       </div>
 
       <div className="grid gap-4">
-        {mockLeads.map((lead) => (
+        {leads.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">No leads selected from previous step.</p>
+          </div>
+        ) : (
+          leads.map((lead) => (
           <Card key={lead.id} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
@@ -100,7 +78,10 @@ export const EmailReviewStep = ({ onNext }: EmailReviewStepProps) => {
                 <div>
                   <h4 className="font-medium text-gray-900 mb-2">Generated Email:</h4>
                   <div className="bg-gray-50 p-3 rounded text-sm whitespace-pre-line text-gray-700">
-                    {lead.generatedEmail}
+                    {lead.generatedEmailSubject && (
+                      <div className="font-medium mb-2">Subject: {lead.generatedEmailSubject}</div>
+                    )}
+                    {lead.generatedEmailBody || 'Email content will be generated...'}
                   </div>
                 </div>
                 <div className="flex space-x-2">
@@ -116,18 +97,20 @@ export const EmailReviewStep = ({ onNext }: EmailReviewStepProps) => {
               </div>
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
 
       <div className="flex justify-between items-center pt-6 border-t">
         <div>
           <p className="text-sm text-gray-600">
-            {mockLeads.length} emails ready • Average AI score: 88.3
+            {leads.length} emails ready{leads.length > 0 && ` • Average score: ${Math.round(leads.reduce((sum, lead) => sum + lead.score, 0) / leads.length)}`}
           </p>
         </div>
         <Button 
           onClick={handlePushToSmartlead}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          disabled={leads.length === 0}
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-50"
         >
           <Send className="h-4 w-4 mr-2" />
           Push to Smartlead

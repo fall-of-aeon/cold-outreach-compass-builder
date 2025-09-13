@@ -6,7 +6,7 @@ export interface CampaignData {
   seniority: string;
   companySize: string;
   prospectDescription?: string;
-  enrichmentStatus: 'pending' | 'in-progress' | 'completed';
+  enrichmentStatus: 'pending' | 'in-progress' | 'completed' | 'enrichment_complete';
   qualifiedLeads: number;
   emailsSent: number;
   openRate: number;
@@ -20,6 +20,31 @@ export interface CampaignData {
   emailAccount?: string;
   schedule?: string;
   dailyLimit?: number;
+  // Airtable integration
+  selectedLeads?: AirtableLead[];
+  enrichedLeadsCount?: number;
+}
+
+export interface AirtableLead {
+  id: string;
+  name: string;
+  title: string;
+  company: string;
+  email: string;
+  linkedinProfile?: string;
+  companyWebsite?: string;
+  score: number;
+  emailVerification: string;
+  webSearchReport?: string;
+  linkedinAnalysis?: string;
+  companyAnalysis?: string;
+  generatedEmailSubject?: string;
+  generatedEmailBody?: string;
+  location?: string;
+  industry?: string;
+  companySize?: string;
+  status: string;
+  selected?: boolean;
 }
 
 export interface ProspectCriteria {

@@ -2,6 +2,7 @@
 import { CampaignData } from "./types";
 import { ProspectDefinitionStep } from "./steps/ProspectDefinitionStep";
 import { LeadEnrichmentStep } from "./steps/LeadEnrichmentStep";
+import { LeadResultsReviewStep } from "./steps/LeadResultsReviewStep";
 import { EmailReviewStep } from "./steps/EmailReviewStep";
 import { CampaignMonitorStep } from "./steps/CampaignMonitorStep";
 
@@ -33,8 +34,15 @@ export const StepRenderer = ({
         onNext={onNext} 
       />;
     case 3:
-      return <EmailReviewStep onNext={onNext} />;
+      return <LeadResultsReviewStep 
+        campaignData={campaignData} 
+        setCampaignData={setCampaignData} 
+        campaignId={campaignId}
+        onNext={onNext} 
+      />;
     case 4:
+      return <EmailReviewStep campaignData={campaignData} onNext={onNext} />;
+    case 5:
       return <CampaignMonitorStep campaignData={campaignData} onComplete={onComplete} />;
     default:
       return null;

@@ -9,6 +9,10 @@ export const steps = [
     description: "Let us find and enrich your prospects"
   },
   {
+    title: "Review Results",
+    description: "Review and select enriched leads"
+  },
+  {
     title: "Review Emails",
     description: "Approve AI-generated personalized messages"
   },
