@@ -6,7 +6,7 @@ export interface CampaignData {
   seniority: string;
   companySize: string;
   prospectDescription?: string;
-  enrichmentStatus: 'pending' | 'in-progress' | 'completed' | 'enrichment_complete';
+  enrichmentStatus: 'pending' | 'in-progress' | 'completed' | 'enrichment_complete' | 'failed';
   qualifiedLeads: number;
   emailsSent: number;
   openRate: number;
