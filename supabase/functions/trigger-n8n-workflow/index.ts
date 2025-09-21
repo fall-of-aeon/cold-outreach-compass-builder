@@ -5,7 +5,94 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin'
 };
+
+// Security and validation utilities
+async function checkRateLimit(supabase: any, identifier: string, endpoint: string, isAuthenticated: boolean): Promise<boolean> {
+  try {
+    const maxRequests = isAuthenticated ? 50 : 10; // Higher limit for authenticated users
+    const { data, error } = await supabase.rpc('check_rate_limit', {
+      p_identifier: identifier,
+      p_endpoint: endpoint,
+      p_max_requests: maxRequests,
+      p_window_minutes: 60
+    });
+    
+    if (error) {
+      console.error('Rate limit check failed:', error);
+      return true; // Allow request if rate limit check fails
+    }
+    
+    return data === true;
+  } catch (error) {
+    console.error('Rate limit error:', error);
+    return true; // Allow request if rate limit check fails
+  }
+}
+
+function validateAndSanitizePayload(payload: any): { isValid: boolean; sanitized?: any; error?: string } {
+  if (!payload || typeof payload !== 'object') {
+    return { isValid: false, error: 'Invalid payload format' };
+  }
+
+  // Validate campaignId
+  if (!payload.campaignId || typeof payload.campaignId !== 'string') {
+    return { isValid: false, error: 'Invalid campaignId' };
+  }
+
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidPattern.test(payload.campaignId)) {
+    return { isValid: false, error: 'Invalid campaignId format' };
+  }
+
+  // Validate campaignData
+  if (!payload.campaignData || typeof payload.campaignData !== 'object') {
+    return { isValid: false, error: 'Invalid campaignData' };
+  }
+
+  const { campaignData } = payload;
+  
+  // Sanitize campaign data
+  const sanitizedCampaignData = {
+    name: typeof campaignData.name === 'string' ? campaignData.name.substring(0, 100) : '',
+    location: typeof campaignData.location === 'string' ? campaignData.location.substring(0, 200) : '',
+    industry: typeof campaignData.industry === 'string' ? campaignData.industry.substring(0, 100) : '',
+    seniority: typeof campaignData.seniority === 'string' ? campaignData.seniority.substring(0, 100) : '',
+    companySize: typeof campaignData.companySize === 'string' ? campaignData.companySize.substring(0, 50) : '',
+    prospectDescription: typeof campaignData.prospectDescription === 'string' 
+      ? campaignData.prospectDescription.substring(0, 1000) : ''
+  };
+
+  // Validate required fields
+  if (!sanitizedCampaignData.name || !sanitizedCampaignData.location || 
+      !sanitizedCampaignData.industry || !sanitizedCampaignData.seniority || 
+      !sanitizedCampaignData.companySize) {
+    return { isValid: false, error: 'Missing required campaign data fields' };
+  }
+
+  const sanitized: any = {
+    campaignId: payload.campaignId,
+    campaignData: sanitizedCampaignData,
+    messageType: typeof payload.messageType === 'string' ? payload.messageType.substring(0, 50) : undefined
+  };
+
+  // Validate chat data if present
+  if (payload.chatData && typeof payload.chatData === 'object') {
+    const { chatData } = payload;
+    sanitized.chatData = {
+      sessionId: typeof chatData.sessionId === 'string' ? chatData.sessionId.substring(0, 100) : '',
+      message: typeof chatData.message === 'string' ? chatData.message.substring(0, 5000) : '',
+      metadata: typeof chatData.metadata === 'object' ? chatData.metadata : {},
+      isNewSession: Boolean(chatData.isNewSession)
+    };
+  }
+
+  return { isValid: true, sanitized };
+}
 
 interface N8nPayload {
   campaignId: string;
@@ -31,13 +118,56 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { campaignId, messageType, chatData, campaignData }: N8nPayload = await req.json();
+    // Get authentication info
+    const authHeader = req.headers.get('authorization');
+    const isAuthenticated = Boolean(authHeader);
+    
+    // Get client identifier for rate limiting
+    const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 
+                     req.headers.get('x-real-ip') || 
+                     'unknown';
+    
+    // Use user ID if authenticated, otherwise use IP
+    const identifier = isAuthenticated ? 
+      (authHeader?.split(' ')[1] || clientIP) : 
+      clientIP;
+
+    // Check rate limit
+    const rateLimitPassed = await checkRateLimit(supabase, identifier, 'trigger-n8n-workflow', isAuthenticated);
+    if (!rateLimitPassed) {
+      console.warn(`Rate limit exceeded for identifier: ${identifier}`);
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "3600" },
+      });
+    }
+
+    // Parse and validate payload
+    const rawPayload = await req.json();
+    const validation = validateAndSanitizePayload(rawPayload);
+    
+    if (!validation.isValid) {
+      console.warn('Invalid payload received:', validation.error);
+      return new Response(JSON.stringify({ error: validation.error }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { campaignId, messageType, chatData, campaignData } = validation.sanitized;
 
     console.log("🚀 Triggering n8n workflow for campaign:", campaignId);
     console.log("📊 Message type:", messageType);

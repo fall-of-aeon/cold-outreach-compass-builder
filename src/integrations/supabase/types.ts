@@ -169,6 +169,36 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          created_at: string | null
+          endpoint: string
+          id: string
+          identifier: string
+          request_count: number | null
+          updated_at: string | null
+          window_start: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          identifier: string
+          request_count?: number | null
+          updated_at?: string | null
+          window_start?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          identifier?: string
+          request_count?: number | null
+          updated_at?: string | null
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       workflow_events: {
         Row: {
           campaign_id: string | null
@@ -212,6 +242,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          p_endpoint: string
+          p_identifier: string
+          p_max_requests?: number
+          p_window_minutes?: number
+        }
+        Returns: boolean
+      }
       get_chat_history: {
         Args: { p_session_id: string }
         Returns: {
