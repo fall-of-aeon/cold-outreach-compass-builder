@@ -67,11 +67,9 @@ function validateAndSanitizePayload(payload: any): { isValid: boolean; sanitized
       ? campaignData.prospectDescription.substring(0, 1000) : ''
   };
 
-  // Validate required fields
-  if (!sanitizedCampaignData.name || !sanitizedCampaignData.location || 
-      !sanitizedCampaignData.industry || !sanitizedCampaignData.seniority || 
-      !sanitizedCampaignData.companySize) {
-    return { isValid: false, error: 'Missing required campaign data fields' };
+  // Only validate required fields: campaignId (already validated above) and campaign name
+  if (!sanitizedCampaignData.name) {
+    return { isValid: false, error: 'Campaign name is required' };
   }
 
   const sanitized: any = {
