@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { 
   ArrowLeft, 
   MessageCircle,
@@ -13,8 +14,11 @@ import {
   AlertCircle,
   Clock,
   Users,
-  BarChart3
+  BarChart3,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
+import { format } from "date-fns";
 import { Campaign } from "@/services/supabaseService";
 import { useCampaign } from "@/hooks/useSupabase";
 import { ChatInterface } from "./campaign-wizard/steps/prospect-definition/ChatInterface";
@@ -27,6 +31,7 @@ interface CampaignDetailsProps {
 
 export const CampaignDetails = ({ campaignId, onBack }: CampaignDetailsProps) => {
   const [showChat, setShowChat] = useState(false);
+  const [isMetadataOpen, setIsMetadataOpen] = useState(false);
   const { data: campaign, isLoading } = useCampaign(campaignId);
 
   if (isLoading) {
@@ -267,6 +272,97 @@ export const CampaignDetails = ({ campaignId, onBack }: CampaignDetailsProps) =>
             </CardContent>
           </Card>
         )}
+
+        {/* Technical Details Section */}
+        <Card className="border border-border bg-card">
+          <Collapsible open={isMetadataOpen} onOpenChange={setIsMetadataOpen}>
+            <CardHeader className="cursor-pointer">
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-2">
+                    <CardTitle>Technical Details</CardTitle>
+                    <Badge variant="outline" className="text-xs">Debug Info</Badge>
+                  </div>
+                  {isMetadataOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </div>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent>
+                <div className="grid gap-4">
+                  {/* Campaign IDs */}
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-sm text-foreground">Campaign Identifiers</h4>
+                    <div className="grid gap-2 text-sm">
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-muted-foreground">Campaign ID:</span>
+                        <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-foreground">{campaign.id}</code>
+                      </div>
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-muted-foreground">User ID:</span>
+                        <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-foreground">{campaign.user_id || 'Not set'}</code>
+                      </div>
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-muted-foreground">Chat Session ID:</span>
+                        <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-foreground">{campaign.chat_session_id || 'Not set'}</code>
+                      </div>
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-muted-foreground">Airtable Search ID:</span>
+                        <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-foreground">{campaign.airtable_search_id || 'Not set'}</code>
+                      </div>
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-muted-foreground">SmartLead Campaign ID:</span>
+                        <code className="text-xs bg-muted px-2 py-1 rounded font-mono text-foreground">{campaign.smartlead_campaign_id || 'Not set'}</code>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Workflow State */}
+                  <div className="space-y-3 pt-3 border-t">
+                    <h4 className="font-semibold text-sm text-foreground">Workflow State</h4>
+                    <div className="grid gap-2 text-sm">
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Current Step:</span>
+                        <span className="font-medium text-foreground">{campaign.workflow_step || 'Not started'}</span>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Progress:</span>
+                        <span className="font-medium text-foreground">{campaign.workflow_progress || 0}%</span>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Status:</span>
+                        <span className="font-medium capitalize text-foreground">{campaign.status}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timestamps */}
+                  <div className="space-y-3 pt-3 border-t">
+                    <h4 className="font-semibold text-sm text-foreground">Timestamps</h4>
+                    <div className="grid gap-2 text-sm">
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Created:</span>
+                        <span className="font-mono text-xs text-foreground">{campaign.created_at ? format(new Date(campaign.created_at), 'PPpp') : 'Not set'}</span>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Last Updated:</span>
+                        <span className="font-mono text-xs text-foreground">{campaign.updated_at ? format(new Date(campaign.updated_at), 'PPpp') : 'Not set'}</span>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Workflow Started:</span>
+                        <span className="font-mono text-xs text-foreground">{campaign.workflow_started_at ? format(new Date(campaign.workflow_started_at), 'PPpp') : 'Not started'}</span>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-muted-foreground">Workflow Completed:</span>
+                        <span className="font-mono text-xs text-foreground">{campaign.workflow_completed_at ? format(new Date(campaign.workflow_completed_at), 'PPpp') : 'Not completed'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
 
         {/* Chat Interface */}
         <ChatInterface
