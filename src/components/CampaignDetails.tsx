@@ -23,6 +23,7 @@ import { Campaign } from "@/services/supabaseService";
 import { useCampaign } from "@/hooks/useSupabase";
 import { ChatInterface } from "./campaign-wizard/steps/prospect-definition/ChatInterface";
 import { CampaignData } from "./campaign-wizard/types";
+import { AirtableLeadsDisplay } from "./AirtableLeadsDisplay";
 
 interface CampaignDetailsProps {
   campaignId: string;
@@ -272,6 +273,9 @@ export const CampaignDetails = ({ campaignId, onBack }: CampaignDetailsProps) =>
             </CardContent>
           </Card>
         )}
+
+        {/* Airtable Leads Section */}
+        <AirtableLeadsDisplay campaignId={campaignId} />
 
         {/* Technical Details Section */}
         <Card className="border border-border bg-card">
