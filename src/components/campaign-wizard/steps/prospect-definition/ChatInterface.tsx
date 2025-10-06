@@ -31,7 +31,7 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessionId, setSessionId] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -42,25 +42,64 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
     scrollToBottom();
   }, [messages]);
 
-  // Load chat history when dialog opens
+  // Initialize sessionId based on campaignId
   useEffect(() => {
-    if (isOpen && campaignId) {
+    const initializeSession = async () => {
+      if (!campaignId) {
+        // No campaign ID - generate temporary session
+        const tempSessionId = crypto.randomUUID();
+        console.log('Creating temporary session (no campaignId):', tempSessionId);
+        setSessionId(tempSessionId);
+        return;
+      }
+
+      try {
+        // Try to get existing session from campaign
+        const campaign = await SupabaseService.getCampaign(campaignId);
+        
+        if (campaign?.chat_session_id) {
+          // Use existing session
+          console.log('Using existing session for campaign:', campaign.chat_session_id);
+          setSessionId(campaign.chat_session_id);
+        } else {
+          // Generate new session and save to campaign
+          const newSessionId = crypto.randomUUID();
+          console.log('Creating new session for campaign:', newSessionId);
+          await SupabaseService.updateCampaignSession(campaignId, newSessionId);
+          setSessionId(newSessionId);
+        }
+      } catch (error) {
+        console.error('Error initializing session:', error);
+        // Fallback to temporary session
+        const fallbackSessionId = crypto.randomUUID();
+        console.log('Using fallback session:', fallbackSessionId);
+        setSessionId(fallbackSessionId);
+      }
+    };
+
+    initializeSession();
+  }, [campaignId]); // Re-run when campaignId changes
+
+  // Load chat history when dialog opens and sessionId is ready
+  useEffect(() => {
+    if (isOpen && campaignId && sessionId) {
       loadChatHistory();
-    } else if (isOpen && messages.length === 0) {
+    } else if (isOpen && sessionId && messages.length === 0) {
       initializeConversation();
     }
-  }, [isOpen, campaignId]);
+  }, [isOpen, campaignId, sessionId]); // Add sessionId dependency
 
   const loadChatHistory = async () => {
-    if (!campaignId) return;
+    if (!campaignId || !sessionId) {
+      console.log('Waiting for campaignId and sessionId...');
+      return;
+    }
 
     try {
-      // First, try to get existing session from campaign
-      const campaign = await SupabaseService.getCampaign(campaignId);
-      const existingSessionId = campaign?.chat_session_id;
-
-      if (existingSessionId) {
-        const history = await SupabaseService.getChatHistory(existingSessionId);
+      console.log('Loading chat history for session:', sessionId);
+      const history = await SupabaseService.getChatHistory(sessionId);
+      
+      if (history.length > 0) {
         const formattedMessages = history.map(msg => ({
           id: msg.message_id,
           content: msg.message,
@@ -69,9 +108,10 @@ export const ChatInterface = ({ isOpen, onClose, campaignData, campaignId, onApp
           metadata: msg.metadata ? (typeof msg.metadata === 'string' ? JSON.parse(msg.metadata) : msg.metadata as Record<string, any>) : undefined
         }));
         setMessages(formattedMessages);
+        console.log(`Loaded ${history.length} messages from history`);
       } else {
-        // Link this session to the campaign and initialize
-        await SupabaseService.updateCampaignSession(campaignId, sessionId);
+        // No history - initialize with welcome message
+        console.log('No chat history found, initializing conversation');
         initializeConversation();
       }
     } catch (error) {

@@ -365,12 +365,13 @@ export const CampaignDetails = ({ campaignId, onBack }: CampaignDetailsProps) =>
         </Card>
 
         {/* Chat Interface */}
-        <ChatInterface
-          isOpen={showChat}
-          onClose={() => setShowChat(false)}
-          campaignData={campaignData}
-          campaignId={campaignId}
-        />
+      <ChatInterface
+        key={campaignId}
+        isOpen={showChat}
+        onClose={() => setShowChat(false)}
+        campaignData={campaignData}
+        campaignId={campaignId}
+      />
       </div>
     </div>
   );

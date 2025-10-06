@@ -37,6 +37,7 @@ export const ProspectDefinitionStep = ({ campaignData, setCampaignData, campaign
 
       {/* Chat Interface - Always Open */}
       <ChatInterface
+        key={campaignId || 'new'}
         isOpen={true}
         onClose={() => {}} // No close functionality needed
         campaignData={campaignData}
